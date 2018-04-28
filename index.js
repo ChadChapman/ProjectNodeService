@@ -61,7 +61,20 @@ app.post("/register", (req, res) => {
 
 
 
+/*
+* Hello world functions below...
+*/
+app.get("/hello", (req, res) => {
+    res.send({
+    message: "Hello, you sent a GET request"
+    });
+    });
 
+app.post("/hello", (req, res) => {
+    res.send({
+    message: "Hello, you sent a POST request"
+    });
+});
 
 /*
  * Return HTML for the / end point. 
