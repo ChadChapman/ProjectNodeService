@@ -10,92 +10,109 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 //We use this create the SHA256 hash
 const crypto = require("crypto");
-//pg-promise is a postgres library that uses javascript promises
-const pgp = require('pg-promise')();
-//We have to set ssl usage to true for Heroku to accept our connection
-pgp.pg.defaults.ssl = true;
+// //pg-promise is a postgres library that uses javascript promises
+// const pgp = require('pg-promise')();
+// //We have to set ssl usage to true for Heroku to accept our connection
+// pgp.pg.defaults.ssl = true;
 
-//Create connection to Heroku Database
-let db;
-//Uncomment next line and change the string to your DATABASE_URL
-db = pgp('postgres://nhalvucsuqwpfk:7cc02a001a0dec4a123302faabb938c9530ec5642eb9378092a7ba91802ae1d8@ec2-54-221-192-231.compute-1.amazonaws.com:5432/dv4igi32q700c');
+// //Create connection to Heroku Database
+// let db;
+// //Uncomment next line and change the string to your DATABASE_URL
+// db = pgp('postgres://nhalvucsuqwpfk:7cc02a001a0dec4a123302faabb938c9530ec5642eb9378092a7ba91802ae1d8@ec2-54-221-192-231.compute-1.amazonaws.com:5432/dv4igi32q700c');
 
-if(!db) {
-   console.log("SHAME! Follow the intructions and set your DATABASE_URL correctly");
-   process.exit(1);
-}
+// if(!db) {
+//    console.log("SHAME! Follow the intructions and set your DATABASE_URL correctly");
+//    process.exit(1);
+// }
 
+var login = require('./routes/login.js');
+app.use('/login', login);
 
-/**
- * Method to get a salted hash.
- * We put this in its own method to keep consistency
- * @param {string} pw the password to hash
- * @param {string} salt the salt to use when hashing
- */
-function getHash(pw, salt) {
-    return crypto.createHash("sha256").update(pw + salt).digest("hex");
-}
+var reg = require('./routes/register.js');
+app.use('/register', reg);
 
+var hello = require('./routes/hello.js');
+app.use('/hello', hello);
 
-function sendEmail(from, to, subject, message) {
-    let form = new FormData();
-    form.append("from", from);
-    form.append("to", to);
-    form.append("subject", subject);
-    form.append("message", message);
-    form.submit("http://cssgate.insttech.washington.edu/~cfb3/mail.php", (err, res) => {
-        if(err) console.error(err);
-        console.log(res);
-    });
-}
+var params = require('./routes/params.js');
+app.use('/params', params);
 
+var waiting = require('./routes/waiting.js');
+app.use('/wait', waiting);
 
-//app.get('/users') means accept http 'GET' requests at path '/users'
-app.post('/login', (req, res) => {
-});
+var demosql = require('./routes/demosql.js');
+app.use('/demosql', demosql);
 
-
-//app.post('/register') means accept http 'POST' requests at path "/release"
-app.post("/register", (req, res) => {  
-});
+// /**
+//  * Method to get a salted hash.
+//  * We put this in its own method to keep consistency
+//  * @param {string} pw the password to hash
+//  * @param {string} salt the salt to use when hashing
+//  */
+// function getHash(pw, salt) {
+//     return crypto.createHash("sha256").update(pw + salt).digest("hex");
+// }
 
 
+// function sendEmail(from, to, subject, message) {
+//     let form = new FormData();
+//     form.append("from", from);
+//     form.append("to", to);
+//     form.append("subject", subject);
+//     form.append("message", message);
+//     form.submit("http://cssgate.insttech.washington.edu/~cfb3/mail.php", (err, res) => {
+//         if(err) console.error(err);
+//         console.log(res);
+//     });
+// }
 
-/*
-* Hello world functions below...
-*/
-app.get("/hello", (req, res) => {
-    res.send({
-    message: "Hello, you sent a GET request"
-    });
-    });
 
-app.post("/hello", (req, res) => {
-    res.send({
-    message: "Hello, you sent a POST request"
-    });
-});
+// //app.get('/users') means accept http 'GET' requests at path '/users'
+// app.post('/login', (req, res) => {
+// });
 
-app.get("/params", (req, res) => {
-    res.send({
-    //req.query is a reference to arguments in the url
-        message: "Hello, " + req.query['name'] + "!"
-        });
-    });
 
-app.post("/params", (req, res) => {
-    res.send({
-    //req.query is a reference to arguments in the POST body
-        message: "Hello, " + req.body['name'] + "! You sent a POST Request"
-        });
-    });
-app.get("/wait", (req, res) => {
-    setTimeout(() => {
-    res.send({
-        message: "Thanks for waiting"
-        });
-    }, 1000);
-});
+// //app.post('/register') means accept http 'POST' requests at path "/release"
+// app.post("/register", (req, res) => {  
+// });
+
+
+
+// /*
+// * Hello world functions below...
+// */
+// app.get("/hello", (req, res) => {
+//     res.send({
+//     message: "Hello, you sent a GET request"
+//     });
+//     });
+
+// app.post("/hello", (req, res) => {
+//     res.send({
+//     message: "Hello, you sent a POST request"
+//     });
+// });
+
+// app.get("/params", (req, res) => {
+//     res.send({
+//     //req.query is a reference to arguments in the url
+//         message: "Hello, " + req.query['name'] + "!"
+//         });
+//     });
+
+// app.post("/params", (req, res) => {
+//     res.send({
+//     //req.query is a reference to arguments in the POST body
+//         message: "Hello, " + req.body['name'] + "! You sent a POST Request"
+//         });
+//     });
+// app.get("/wait", (req, res) => {
+//     setTimeout(() => {
+//     res.send({
+//         message: "Thanks for waiting"
+//         });
+//     }, 1000);
+// });
 
 app.post("/demosql", (req, res) => {
     var name = req.body['name'];
