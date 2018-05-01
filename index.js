@@ -24,7 +24,7 @@ const crypto = require("crypto");
 //    console.log("SHAME! Follow the intructions and set your DATABASE_URL correctly");
 //    process.exit(1);
 // }
-
+s
 var login = require('./routes/login.js');
 app.use('/login', login);
 
@@ -43,15 +43,7 @@ app.use('/wait', waiting);
 var demosql = require('./routes/demosql.js');
 app.use('/demosql', demosql);
 
-// /**
-//  * Method to get a salted hash.
-//  * We put this in its own method to keep consistency
-//  * @param {string} pw the password to hash
-//  * @param {string} salt the salt to use when hashing
-//  */
-// function getHash(pw, salt) {
-//     return crypto.createHash("sha256").update(pw + salt).digest("hex");
-// }
+
 
 
 // function sendEmail(from, to, subject, message) {
@@ -65,16 +57,6 @@ app.use('/demosql', demosql);
 //         console.log(res);
 //     });
 // }
-
-
-// //app.get('/users') means accept http 'GET' requests at path '/users'
-// app.post('/login', (req, res) => {
-// });
-
-
-// //app.post('/register') means accept http 'POST' requests at path "/release"
-// app.post("/register", (req, res) => {  
-// });
 
 
 
