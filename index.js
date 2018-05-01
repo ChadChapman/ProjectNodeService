@@ -43,7 +43,8 @@ app.use('/wait', waiting);
 var demosql = require('./routes/demosql.js');
 app.use('/demosql', demosql);
 
-
+var contacts = require('./routes/contacts.js');
+app.use('/contacts', contacts);
 
 
 // function sendEmail(from, to, subject, message) {
