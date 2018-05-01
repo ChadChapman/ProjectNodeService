@@ -6,12 +6,14 @@ const bodyParser = require("body-parser");
 //This allows parsing of the body of POST requests, that are encoded in JSON
 app.use(bodyParser.json());
 var router = express.Router();
+
 router.get("/", (req, res) => {
     res.send({
         //req.query is a reference to arguments in the url
         message: "Hello, " + req.query['name'] + "!"
     });
 });
+
 router.post("/", (req, res) => {
 res.send({
 //req.query is a reference to arguments in the POST body
