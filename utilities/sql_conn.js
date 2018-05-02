@@ -1,3 +1,4 @@
+//Test
 const pgp = require('pg-promise')();
 //We have to set ssl usage to true for Heroku to accept our connection
 pgp.pg.defaults.ssl = true;

@@ -1,3 +1,4 @@
+//Test
 /*
 we will want to:
     return all verified contacts
@@ -42,6 +43,7 @@ var router = express.Router();
         ?send an email to that member to request adding them as a contact?
         writing to Contacts table => this memberID, other memberID, verified=no, 
         timestamp of creation=now, timestamp of last modified=now, 
+    
 */
 router.post("/", (req, res) => {
     var name = req.body['name'];
