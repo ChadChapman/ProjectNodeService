@@ -35,9 +35,11 @@ var router = express.Router();
 */
 router.post("/", (req, res) => {
     var memberID = req.body['memberid'];
+    var chatID = req.body['chatid'];
     if (memberID) {
-        let params = [memberID];
-        db.none("INSERT INTO ChatMembers(MemberID) VALUES ($1)", params)
+        let memid = [memberID];
+        let chid = [chatID];
+        db.none("INSERT INTO ChatMembers(MemberID, ChatID) VALUES ($1, $2)", memid, chid)
         .then(() => {
             //We successfully addevd the name, let the user know
             res.send({
