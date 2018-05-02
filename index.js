@@ -24,7 +24,7 @@ const crypto = require("crypto");
 //    console.log("SHAME! Follow the intructions and set your DATABASE_URL correctly");
 //    process.exit(1);
 // }
-var chat = require('.\routes\chat.js');
+var chat = require('./routes/chat.js');
 app.use('/chat', chat);
 
 var login = require('./routes/login.js');
