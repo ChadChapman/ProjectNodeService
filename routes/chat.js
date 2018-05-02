@@ -37,13 +37,13 @@ router.post("/", (req, res) => {
     //var message = req.body['message'];
     var name = req.body['name'];
     //var memberID = req.body['memberid'];
-    var chatID = req.body['chatid'];
-    if (chatID) {
+    //var chatID = req.body['chatid'];
+    if (name) {
         //let uMessage = [message];
         let uName = [name];
         //let memid = [memberID];
-        let chid = [chatID];
-        db.none("INSERT INTO Chats(ChatID) VALUES (" + chid + ")")
+        //let chid = [chatID];
+        db.none("INSERT INTO Chats(Name) VALUES (" + uName + ")")
         .then(() => {
             //We successfully addevd the name, let the user know
             res.send({
