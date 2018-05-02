@@ -84,10 +84,9 @@ router.post("/", (req, res) => {
     This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
     memberID.
 */
-/*
 router.get("/", (req, res) => {
-    var userMemberID = req.body['my_MemberID'];
-    db.manyOrNone('SELECT MemberID_B FROM Contacts WHERE MemberID_A = userMemberID') //refactor to make just verified contacts?
+    
+    db.manyOrNone('SELECT * FROM ChatMembers') //refactor to make just verified contacts?
     //If successful, run function passed into .then()
     .then((data) => {
         res.send({
@@ -103,6 +102,6 @@ router.get("/", (req, res) => {
     });
 });
 module.exports = router;
-*/
+
 
 
