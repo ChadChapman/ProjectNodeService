@@ -36,7 +36,7 @@ var router = express.Router();
 router.post("/", (req, res) => {
     var memberID = req.body['memberid'];
     var chatID = req.body['chatid'];
-    if (memberID) {
+    if (memberID && chatID) {
         let memid = [memberID];
         let chid = [chatID];
         db.none("INSERT INTO ChatMembers(MemberID, ChatID) VALUES ($1, $2)", memid, chid)
