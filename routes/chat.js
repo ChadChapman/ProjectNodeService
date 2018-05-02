@@ -38,7 +38,7 @@ router.post("/", (req, res) => {
     var name = req.body['name'];
     var memberID = req.body['memberid'];
     var chatID = req.body['chatid'];
-    if (memberID && chatID) {
+    if (name && chatID) {
         let uMessage = [message];
         let uName = [name];
         let memid = [memberID];
