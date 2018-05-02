@@ -39,7 +39,7 @@ router.post("/", (req, res) => {
     if (memberID && chatID) {
         let memid = [memberID];
         let chid = [chatID];
-        db.none("INSERT INTO ChatMembers(MemberID, ChatID) VALUES ($1, $2)", memid, chid)
+        db.none("INSERT INTO ChatMembers(MemberID, ChatID) VALUES (" + memid + ", " + chid + ")")
         .then(() => {
             //We successfully addevd the name, let the user know
             res.send({
@@ -80,7 +80,28 @@ router.post("/", (req, res) => {
 
 */
 
-
+/*
+    This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
+    memberID.
+*/
+router.get("/", (req, res) => {
+    
+    db.manyOrNone('SELECT * FROM ChatMembers') //refactor to make just verified contacts?
+    //If successful, run function passed into .then()
+    .then((data) => {
+        res.send({
+            success: true,
+            names: data
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+module.exports = router;
 
 
 
