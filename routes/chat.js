@@ -38,12 +38,12 @@ router.post("/", (req, res) => {
     var name = req.body['name'];
     var memberID = req.body['memberid'];
     var chatID = req.body['chatid'];
-    if (name && chatID) {
+    if (name) {
         let uMessage = [message];
         let uName = [name];
         let memid = [memberID];
         let chid = [chatID];
-        db.none("INSERT INTO Chats(ChatID, Name) VALUES (" + chid + ", " + uName + ")")
+        db.none("INSERT INTO Chats(Name) VALUES (" + chid + ", " + uName + ")")
         .then(() => {
             //We successfully addevd the name, let the user know
             res.send({
