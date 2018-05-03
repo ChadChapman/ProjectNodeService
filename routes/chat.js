@@ -34,16 +34,17 @@ var router = express.Router();
         timestamp of creation=now, timestamp of last modified=now, 
 */
 router.post("/", (req, res) => {
-    var memberID = req.body['memberid'];
-    var chatID = req.body['chatid'];
+    let memberID = req.body['memberid'];
+    let chatID = req.body['chatid'];
+    let theMessage = req.body['message'];
     if (memberID && chatID) {
-        let memid = [memberID];
-        let chid = [chatID];
-        db.none("INSERT INTO ChatMembers(MemberID, ChatID) VALUES (" + memid + ", " + chid + ")")
-        .then(() => {
-            //We successfully addevd the name, let the user know
+        db.none("INSERT INTO Messages(ChatID, TheMessage, MemberID) VALUES (" + [chatID] +
+        ", " + [theMessage] + ", " + [memberID] + ")")
+        .then((data) => {
+            //We successfully added the message, let the user know
             res.send({
-                success: true
+                success: true,
+                message: data
             });
         }).catch((err) => {
         //log the error
