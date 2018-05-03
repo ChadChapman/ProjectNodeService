@@ -48,6 +48,8 @@ app.use('/demosql', demosql);
 var contacts = require('./routes/contacts.js');
 app.use('/contacts', contacts);
 
+var getinfo = require('./routes/getinfo.js');
+app.use('/getinfo', getinfo);
 
 // function sendEmail(from, to, subject, message) {
 //     let form = new FormData();
