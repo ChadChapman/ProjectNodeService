@@ -49,6 +49,9 @@ app.use('/contacts', contacts);
 var chat = require('./routes/chat.js');
 app.use('/chat', chat);
 
+var getinfo = require('./routes/getinfo.js');
+app.use('/getinfo', getinfo);
+
 
 
 /*
