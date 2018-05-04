@@ -37,6 +37,28 @@ let db = require('../utilities/utils').db;
 var router = express.Router();
 
 /*
+    This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
+    memberID.
+*/
+router.post("/", (req, res) => {
+    let userMemberID = req.body['my_MemberID'];
+    db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
+   // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
+    //If successful, run function passed into .then()
+    .then((data) => {
+        res.send({
+            success: true,
+            names: data
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+/*
     This should request a connection for a contact, so perhaps from the list of members we can select a member
     then submit a request to that member to become contacts with them.
     this will require: get the memberID of the member to send request to
@@ -45,7 +67,14 @@ var router = express.Router();
         timestamp of creation=now, timestamp of last modified=now, 
     
 */
-router.post("/", (req, res) => {
+
+/*
+    Initiate a request to another member to become Contacts with each other
+    @param1 - MemberID of user initiating the request
+    @param2 - MemberId of user receiving the Contacts request
+
+*/
+router.post("/request", (req, res) => {
     var name = req.body['name'];
     if (name) {
         let params = [name];
@@ -93,7 +122,7 @@ router.post("/", (req, res) => {
 /*
     This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
     memberID.
-*/
+
 router.get("/", (req, res) => {
     var userMemberID = req.body['my_MemberID'];
     db.manyOrNone('SELECT MemberID_B FROM Contacts WHERE MemberID_A = userMemberID') //refactor to make just verified contacts?
@@ -111,4 +140,5 @@ router.get("/", (req, res) => {
         })
     });
 });
+*/
 module.exports = router;
