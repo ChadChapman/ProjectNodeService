@@ -37,6 +37,28 @@ let db = require('../utilities/utils').db;
 var router = express.Router();
 
 /*
+    This will serve as the "base" get function, will return all contacts associated with this user's
+    memberID.
+*/
+router.post("/", (req, res) => {
+    let userMemberID = req.body['my_MemberID'];
+    db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
+   // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
+    //If successful, run function passed into .then()
+    .then((data) => {
+        res.send({
+            success: true,
+            names: data
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+/*
     This should request a connection for a contact, so perhaps from the list of members we can select a member
     then submit a request to that member to become contacts with them.
     this will require: get the memberID of the member to send request to
@@ -44,6 +66,42 @@ var router = express.Router();
         writing to Contacts table => this memberID, other memberID, verified=no, 
         timestamp of creation=now, timestamp of last modified=now, 
     
+<<<<<<< HEAD
+*/
+
+/*
+    Initiate a request to another member to become Contacts with each other
+    @param1 - MemberID of user initiating the request
+    @param2 - MemberId of user receiving the Contacts request
+
+*/
+router.post("/request", (req, res) => {
+    var name = req.body['name'];
+    if (name) {
+        let params = [name];
+        db.none("INSERT INTO DEMO(Text) VALUES ($1)", params)
+        .then(() => {
+            //We successfully addevd the name, let the user know
+            res.send({
+                success: true
+            });
+        }).catch((err) => {
+        //log the error
+        console.log(err);
+        res.send({
+            success: false,
+            error: err
+            });
+        });
+    } else {
+        res.send({
+            success: false,
+            input: req.body,
+            error: "Missing required information"
+        });
+    }
+});
+
 // */
 // router.post("/", (req, res) => {
 //     var name = req.body['name'];
@@ -72,6 +130,7 @@ var router = express.Router();
 //     }
 // });
 
+
 /*
     similar to comment in header, the get function will likely need to have mutiple additional end points
     to start:
@@ -93,11 +152,20 @@ var router = express.Router();
 /*
     This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
     memberID.
+<<<<<<< HEAD
+
+router.get("/", (req, res) => {
+    var userMemberID = req.body['my_MemberID'];
+    db.manyOrNone('SELECT MemberID_B FROM Contacts WHERE MemberID_A = userMemberID') //refactor to make just verified contacts?
+=======
 */
+
+/*
 router.post("/", (req, res) => {
     let userMemberID = req.body['my_MemberID'];
     db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
    // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
+
     //If successful, run function passed into .then()
     .then((data) => {
         res.send({
@@ -112,6 +180,7 @@ router.post("/", (req, res) => {
         })
     });
 });
+<<<<<<< HEAD
 
 router.post("/creatContact", (req, res) => {
     let ida = req.body['ida'];
@@ -130,4 +199,7 @@ router.post("/creatContact", (req, res) => {
         })
     });
 });
+=======
+*/
+//>>>>>>> 3945bbbc0679d8072b3cc88be2ec678261acf8dd
 module.exports = router;
