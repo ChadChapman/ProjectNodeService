@@ -37,12 +37,12 @@ let db = require('../utilities/utils').db;
 var router = express.Router();
 
 /*
-    This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
+    This will serve as the "base" get function, will return all contacts associated with this user's
     memberID.
 */
 router.post("/", (req, res) => {
     let userMemberID = req.body['my_MemberID'];
-    db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
+    db.manyOrNone('SELECT Verified as mutual, Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
    // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
     //If successful, run function passed into .then()
     .then((data) => {
