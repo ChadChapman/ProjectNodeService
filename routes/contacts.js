@@ -42,7 +42,7 @@ var router = express.Router();
 */
 router.post("/", (req, res) => {
     let userMemberID = req.body['my_MemberID'];
-    db.manyOrNone('SELECT Verified as mutual, Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
+    db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
    // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
     //If successful, run function passed into .then()
     .then((data) => {
