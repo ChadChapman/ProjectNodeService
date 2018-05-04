@@ -33,7 +33,6 @@ CREATE TABLE ChatMembers (ChatID INT NOT NULL,
 DROP TABLE IF EXISTS Messages;
 CREATE TABLE Messages (PrimaryKey SERIAL PRIMARY KEY,
                        ChatID INT,
-                       Them
                        Message VARCHAR(255),
                        MemberID INT,
                        FOREIGN KEY(MemberID) REFERENCES Members(MemberID),

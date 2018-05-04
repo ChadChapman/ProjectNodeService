@@ -112,4 +112,22 @@ router.post("/", (req, res) => {
         })
     });
 });
+
+router.post("/creatContact", (req, res) => {
+    let ida = req.body['ida'];
+    let idb = req.body['idb'];
+    db.manyOrNone('INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES($1, $2)', ida, idb) //refactor to make just verified contacts?
+   // db.manyOrNone('INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES()
+    .then(() => {
+        res.send({
+            success: true,
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
 module.exports = router;
