@@ -101,7 +101,7 @@ router.post("/request", (req, res) => {
         });
     }
 });
-=======
+
 // */
 // router.post("/", (req, res) => {
 //     var name = req.body['name'];
@@ -129,7 +129,7 @@ router.post("/request", (req, res) => {
 //         });
 //     }
 // });
->>>>>>> ab20bc15be1d9b5e6b28452d0eac88233c17aba7
+
 
 /*
     similar to comment in header, the get function will likely need to have mutiple additional end points
@@ -159,11 +159,13 @@ router.get("/", (req, res) => {
     db.manyOrNone('SELECT MemberID_B FROM Contacts WHERE MemberID_A = userMemberID') //refactor to make just verified contacts?
 =======
 */
+
+/*
 router.post("/", (req, res) => {
     let userMemberID = req.body['my_MemberID'];
     db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
    // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
->>>>>>> ab20bc15be1d9b5e6b28452d0eac88233c17aba7
+
     //If successful, run function passed into .then()
     .then((data) => {
         res.send({
