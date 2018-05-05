@@ -24,6 +24,8 @@ const crypto = require("crypto");
 //    console.log("SHAME! Follow the intructions and set your DATABASE_URL correctly");
 //    process.exit(1);
 // }
+var msg = require('./router/messages.js');
+app.use('/', msg);
 
 var login = require('./routes/login.js');
 app.use('/login', login);
