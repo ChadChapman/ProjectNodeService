@@ -13,7 +13,6 @@ app.use(bodyParser.json());
 let db = require('../utilities/utils').db;
 var router = express.Router();
 
-//app.get('/users') means accept http 'GET' requests at path '/users'
 router.post('/', (req, res) => {
     let user = req.body['username'];
 
