@@ -25,8 +25,6 @@ const crypto = require("crypto");
 //    console.log("SHAME! Follow the intructions and set your DATABASE_URL correctly");
 //    process.exit(1);
 // }
-var chat = require('./routes/chat.js');
-app.use('/chat', chat);
 
 var login = require('./routes/login.js');
 app.use('/login', login);
@@ -49,8 +47,12 @@ app.use('/demosql', demosql);
 var contacts = require('./routes/contacts.js');
 app.use('/contacts', contacts);
 
+var chat = require('./routes/chat.js');
+app.use('/chat', chat);
+
 var getinfo = require('./routes/getinfo.js');
 app.use('/getinfo', getinfo);
+
 
 // function sendEmail(from, to, subject, message) {
 //     let form = new FormData();

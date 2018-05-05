@@ -23,6 +23,7 @@ router.post('/', (req, res) => {
         //If successful, run function passed into .then()
         .then(row => {
             res.send({
+                success: true,
                 username: user,
                 firstname: row['firstname'],
                 lastname: row['lastname'],
