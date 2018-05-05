@@ -17,7 +17,7 @@ router.post("/", (req, res) => {
     let user = req.body['username'];
     let theirPw = req.body['password'];
     if(user && theirPw) {
-        db.one("SELECT Password, Salt FROM MEMBERS WHERE Username = $1", [user])
+        db.one("SELECT MemberID, Password, Salt FROM MEMBERS WHERE Username = $1", [user])
         .then(row => {
             let salt = row['salt'];
             //retrieve our copy of the password
@@ -27,8 +27,13 @@ router.post("/", (req, res) => {
             //Did their salted hash match our salted hash?
             let wasCorrectPassword = ourSaltedHash === theirSaltedHash
             //Send correct pass or no
+           var userMemberID;
+            if(wasCorrectPassword) {
+                userMemberID = row['memberid'];
+            }
             res.send({
-                success: wasCorrectPassword
+                success: wasCorrectPassword,
+                message: userMemberID
             });
         })
         //More than one row should not be found since we have a constraint
