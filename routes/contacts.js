@@ -58,6 +58,38 @@ router.post("/", (req, res) => {
         })
     });
 });
+
+router.post("/update", (req, res) => {
+    let userMemberID = req.body['my_MemberID'];
+    db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
+   // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
+    //If successful, run function passed into .then()
+    .then((data) => {
+        if (data < 1) {
+            res.send({
+                success: true,
+                updates: false,    
+            })
+        } else {
+        res.send({
+            success: true,
+            updates: false,
+           // Username, FName, LName, created_at, last_modified, verified, " +
+           //             "image_link, display_color 
+            });
+        }
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+
+
+
+
 /*
     This should request a connection for a contact, so perhaps from the list of members we can select a member
     then submit a request to that member to become contacts with them.
