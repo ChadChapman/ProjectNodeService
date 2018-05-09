@@ -37,18 +37,26 @@ let db = require('../utilities/utils').db;
 var router = express.Router();
 
 /*
-    This will serve as the "base" get function, will return all contacts associated with this user's
-    memberID.
+    This will serve as the "base" get function, will return all verified contacts associated with this user's
+    memberID.  can be converted to just '/' if we think that's better
 */
-router.post("/", (req, res) => {
-    let userMemberID = req.body['my_MemberID'];
-    db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
-   // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
-    //If successful, run function passed into .then()
+router.post("/verified", (req, res) => {
+    let userMemberID = req.body['memberid'];
+    let query = `SELECT DISTINCT members.username
+                , members.email, members.memberid
+                , members.firstname, members.lastname
+                FROM contacts
+                INNER JOIN members 
+                    ON contacts.memberid_a = members.memberid OR
+                        contacts.memberid_b = members.memberid
+                WHERE verified = $2`
+     
+    db.manyOrNone(query, [userMemberID, 1])
     .then((data) => {
         res.send({
             success: true,
-            names: data
+            contacts: data
+        
         });
     }).catch((error) => {
         console.log(error);
@@ -59,6 +67,74 @@ router.post("/", (req, res) => {
     });
 });
 
+/*
+    sent requests are all the contacts we have initiated in adding
+    eg: we sent them a request to connect
+    the member who initiates the contacts connection is recorded as memberid_a
+*/
+router.post("/sentRequest", (req, res) => {
+    let userMemberID = req.body['memberid'];
+    let query = `SELECT DISTINCT ON (members.username) members.username
+                , members.email, members.memberid
+                , members.firstname, members.lastname
+                , contacts.verified
+                FROM contacts
+                INNER JOIN members 
+                    ON contacts.memberid_a = members.memberid
+                ORDER BY members.username`
+     
+    db.manyOrNone(query, [userMemberID, 1])
+    .then((data) => {
+        res.send({
+            success: true,
+            contacts: data
+        
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+
+/*
+   returns the recieved requests, which are all the contacts we have NOT initiated in adding
+    eg: we received a request from them to connect
+    the member who initiates the contacts connection is recorded as memberid_b
+*/
+router.post("/recievedRequest", (req, res) => {
+    let userMemberID = req.body['memberid'];
+    let query = `SELECT DISTINCT ON (members.username) members.username
+                , members.email, members.memberid
+                , members.firstname, members.lastname
+                , contacts.verified
+                FROM contacts
+                INNER JOIN members 
+                    ON contacts.memberid_b = members.memberid
+                ORDER BY members.username`
+                
+     
+    db.manyOrNone(query, [userMemberID, 1])
+    .then((data) => {
+        res.send({
+            success: true,
+            contacts: data
+        
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+
+/*
+    does not work yet, is on my todo list
+*/
 router.post("/update", (req, res) => {
     let userMemberID = req.body['my_MemberID'];
     db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
@@ -87,7 +163,25 @@ router.post("/update", (req, res) => {
     });
 });
 
-
+/*
+    seems to work so far in postman, creates new contacts records with two params
+*/
+router.post("/createContact", (req, res) => {
+    let ida = req.body['ida'];
+    let idb = req.body['idb'];
+    db.manyOrNone('INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES($1, $2)', [ida, idb])
+    .then(() => {
+        res.send({
+            success: true,
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
 
 
 /*
@@ -98,7 +192,6 @@ router.post("/update", (req, res) => {
         writing to Contacts table => this memberID, other memberID, verified=no, 
         timestamp of creation=now, timestamp of last modified=now, 
     
-<<<<<<< HEAD
 */
 
 /*
@@ -184,12 +277,10 @@ router.post("/request", (req, res) => {
 /*
     This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
     memberID.
-<<<<<<< HEAD
-
 router.get("/", (req, res) => {
     var userMemberID = req.body['my_MemberID'];
     db.manyOrNone('SELECT MemberID_B FROM Contacts WHERE MemberID_A = userMemberID') //refactor to make just verified contacts?
-=======
+
 */
 
 /*
@@ -212,26 +303,7 @@ router.post("/", (req, res) => {
         })
     });
 });
-<<<<<<< HEAD
-
-router.post("/creatContact", (req, res) => {
-    let ida = req.body['ida'];
-    let idb = req.body['idb'];
-    db.manyOrNone('INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES($1, $2)', ida, idb) //refactor to make just verified contacts?
-   // db.manyOrNone('INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES()
-    .then(() => {
-        res.send({
-            success: true,
-        });
-    }).catch((error) => {
-        console.log(error);
-        res.send({
-            success: false,
-            error: error
-        })
-    });
-});
-=======
 */
-//>>>>>>> 3945bbbc0679d8072b3cc88be2ec678261acf8dd
+
+
 module.exports = router;
