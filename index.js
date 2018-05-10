@@ -58,6 +58,8 @@ app.use('/', messages);
 var getinfo = require('./routes/getinfo.js');
 app.use('/getinfo', getinfo);
 
+var chat = require('./routes/chat.js');
+app.use('/chat', chat);
 
 
 /*
