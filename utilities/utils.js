@@ -1,21 +1,35 @@
 //Test
 //Get the connection to Heroku Database
 let db = require('./sql_conn.js');
+var nodemailer = require('nodemailer');
+
 
 //We use this create the SHA256 hash
 const crypto = require("crypto");
 const FormData = require("form-data");
 function sendEmail(from, to, subject, message) {
-    let form = new FormData();
-    form.append("from", from);
-    form.append("to", to);
-    form.append("subject", subject);
-    form.append("message", message);
-    form.submit("http://cssgate.insttech.washington.edu/~cfb3/mail.php", (err,
-    res) => {
-        if(err) console.error(err);
-        console.log(res);
-    });
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'chatrabbit2@gmail.com',
+          pass: 'rabbitchat450!'
+        }
+      });
+      
+      var mailOptions = {
+        from: from,
+        to: to,
+        subject: subject,
+        text: message
+      };
+      
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
 }
 
 /**

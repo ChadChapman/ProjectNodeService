@@ -27,9 +27,6 @@ const crypto = require("crypto");
 var msg = require('./routes/messages.js');
 app.use('/', msg);
 
-var chat = require('./routes/chat.js');
-app.use('/chat', chat);
-
 var login = require('./routes/login.js');
 app.use('/login', login);
 
@@ -51,102 +48,19 @@ app.use('/demosql', demosql);
 var contacts = require('./routes/contacts.js');
 app.use('/contacts', contacts);
 
+//chat need to be refactored to handle creating a new chat
+// var chat = require('./routes/chat.js');
+// app.use('/chat', chat);
+
+var messages = require('./routes/messages.js')
+app.use('/', messages);
+
 var getinfo = require('./routes/getinfo.js');
 app.use('/getinfo', getinfo);
 
-// function sendEmail(from, to, subject, message) {
-//     let form = new FormData();
-//     form.append("from", from);
-//     form.append("to", to);
-//     form.append("subject", subject);
-//     form.append("message", message);
-//     form.submit("http://cssgate.insttech.washington.edu/~cfb3/mail.php", (err, res) => {
-//         if(err) console.error(err);
-//         console.log(res);
-//     });
-// }
+var chat = require('./routes/chat.js');
+app.use('/chat', chat);
 
-
-
-// /*
-// * Hello world functions below...
-// */
-// app.get("/hello", (req, res) => {
-//     res.send({
-//     message: "Hello, you sent a GET request"
-//     });
-//     });
-
-// app.post("/hello", (req, res) => {
-//     res.send({
-//     message: "Hello, you sent a POST request"
-//     });
-// });
-
-// app.get("/params", (req, res) => {
-//     res.send({
-//     //req.query is a reference to arguments in the url
-//         message: "Hello, " + req.query['name'] + "!"
-//         });
-//     });
-
-// app.post("/params", (req, res) => {
-//     res.send({
-//     //req.query is a reference to arguments in the POST body
-//         message: "Hello, " + req.body['name'] + "! You sent a POST Request"
-//         });
-//     });
-// app.get("/wait", (req, res) => {
-//     setTimeout(() => {
-//     res.send({
-//         message: "Thanks for waiting"
-//         });
-//     }, 1000);
-// });
-
-app.post("/demosql", (req, res) => {
-    var name = req.body['name'];
-    if (name) {
-        let params = [name];
-        db.none("INSERT INTO DEMO(Text) VALUES ($1)", params)
-        .then(() => {
-            //We successfully added the name, let the user know
-            res.send({
-                success: true
-            });
-        }).catch((err) => {
-            //log the error
-            console.log(err);
-            res.send({
-                success: false,
-                error: err
-            });
-        });
-    } else {
-        res.send({
-            success: false,
-            input: req.body,
-            error: "Missing required information"
-        });
-    }
-});
-
-app.get("/demosql", (req, res) => {
-    db.manyOrNone('SELECT Text FROM Demo')
-    //If successful, run function passed into .then()
-    .then((data) => {
-        res.send({
-            success: true,
-            names: data
-        });
-    }).catch((error) => {
-        console.log(error);
-        res.send({
-            success: false,
-            error: error
-        })
-    });
-});
 
 /*
  * Return HTML for the / end point. 

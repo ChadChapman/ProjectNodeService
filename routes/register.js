@@ -9,6 +9,10 @@ app.use(bodyParser.json());
 //We use this create the SHA256 hash
 const crypto = require("crypto");
 
+//values for emails
+const sender = "chatrabbit2@gmail.com";
+const verifyMessage = "Verify your account with RabbitChat!!";
+
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
 let getHash = require('../utilities/utils').getHash;
@@ -68,11 +72,15 @@ router.post('/', (req, res) => {
         let params = [first, last, username, email, salted_hash, salt];
         db.none("INSERT INTO MEMBERS(FirstName, LastName, Username, Email,Password, Salt) VALUES ($1, $2, $3, $4, $5, $6)", params)
         .then(() => {
+            //Generate a verfication code
+            var verificationCode = Math.floor(Math.random() * 9999);
             //We successfully added the user, let the user know
             res.send({
-                success: true
+                success: true,
+                message: verificationCode
             });
-            sendEmail("cfb3@uw.edu", email, "Welcome!", "<strong>Welcome to our app!</strong>");
+            let email = req.body['email'];
+            sendEmail(sender, email, verifyMessage, "<strong>Welcome to our app!</strong>");
         }).catch((err) => {
             //log the error
             console.log(err);
@@ -93,5 +101,28 @@ router.post('/', (req, res) => {
         });
     }
 });
+
+router.post('/saveVerificationCode', (req, res) => {
+    let memberid = req.body['memberid'];
+    let code = req.body['message'];
+    if (memberid && code) {
+        query = `UPDATE Members
+                 SET Verification = $2
+                 WHERE MemberID = $1`
+        db.none(query, [memberid, code])
+        .then((row) => {
+            res.send({
+                success: true
+            })
+        })
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        })
+                 
+    }
+})
 
 module.exports = router;
