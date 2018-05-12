@@ -13,7 +13,7 @@ let db = require('../utilities/utils').db;
 
 var router = express.Router();
 
-router.post("/", (req, res) => {
+router.post("/newChat", (req, res) => {
     let memberid = req.body['memberid'];
     let chatname = req.body['chatname'];
     if (memberid && chatname) {
@@ -39,6 +39,31 @@ router.post("/", (req, res) => {
         })
     }
 });
+
+router.post("/addChat", (req, res) => {
+    let chatid = req.body['chatid'];
+    let memberid = req.body['memberid'];
+
+    if (chatid && memberid) {
+        db.none(`INSERT INTO ChatMembers(ChatID, MemberID) VALUES($1, $2)`, [chatid, memberid])
+        .then(() => {
+            res.send({
+                success: true
+            })
+        })
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing chatid or memberid"
+        })
+    }
+})
 
 
 module.exports = router;
