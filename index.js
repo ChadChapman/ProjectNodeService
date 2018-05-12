@@ -48,14 +48,18 @@ app.use('/demosql', demosql);
 var contacts = require('./routes/contacts.js');
 app.use('/contacts', contacts);
 
-var chat = require('./routes/chat.js');
-app.use('/chat', chat);
+//chat need to be refactored to handle creating a new chat
+// var chat = require('./routes/chat.js');
+// app.use('/chat', chat);
+
+var messages = require('./routes/messages.js')
+app.use('/', messages);
 
 var getinfo = require('./routes/getinfo.js');
 app.use('/getinfo', getinfo);
 
-var msg = require('./routes/messages.js');
-app.use('/', msg);
+var chat = require('./routes/chat.js');
+app.use('/chat', chat);
 
 
 /*

@@ -261,9 +261,11 @@ router.post("/update", (req, res) => {
     });
 });
 
-// beyond here be dragons, just commented out previously used methods, should all be deleted after all end points are working correctly
+// beyond here be dragons, just commented out previously used methods,
+// should all be deleted after all end points are working correctly
 /*
-    This should request a connection for a contact, so perhaps from the list of members we can select a member
+    This should request a connection for a contact, so perhaps from the list
+    of members we can select a member
     then submit a request to that member to become contacts with them.
     this will require: get the memberID of the member to send request to
         ?send an email to that member to request adding them as a contact?
