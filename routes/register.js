@@ -57,9 +57,7 @@ router.post('/', (req, res) => {
             })
         }
         if(valid > 0){
-            
-        }
-        //We're storing salted hashes to make our application more secure
+                    //We're storing salted hashes to make our application more secure
         //If you're interested as to what that is, and why we should use it
         //watch this youtube video: https://www.youtube.com/watch?v=8ZtInClXe1Q
         let salt = crypto.randomBytes(32).toString("hex");
@@ -85,6 +83,8 @@ router.post('/', (req, res) => {
                 error: err
             });
         });
+        }
+
     } else {
         res.send({
             success: false,
