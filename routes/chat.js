@@ -63,6 +63,39 @@ router.post("/", (req, res) => {
     }
 });
 
+/**
+ * still needs to be correctly implemented
+ */
+router.post("/createNew", (req, res) => {
+    let memberID = req.body['memberid'];
+    //let chatID = req.body['chatid'];
+    //let theMessage = req.body['message'];
+    if (memberID && chatID) {
+        db.none("INSERT INTO Messages(ChatID, TheMessage, MemberID) VALUES (" + [chatID] +
+        ", " + [theMessage] + ", " + [memberID] + ")")
+        .then((data) => {
+            //We successfully added the message, let the user know
+            res.send({
+                success: true,
+                message: data
+            });
+        }).catch((err) => {
+        //log the error
+        console.log(err);
+        res.send({
+            success: false,
+            error: err
+            });
+        });
+    } else {
+        res.send({
+            success: false,
+            input: req.body,
+            error: "Missing required information"
+        });
+    }
+});
+
 /*
     similar to comment in header, the get function will likely need to have mutiple additional end points
     to start:
