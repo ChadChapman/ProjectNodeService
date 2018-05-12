@@ -14,9 +14,9 @@ let db = require('../utilities/utils').db;
 var router = express.Router();
 
 router.post("/newChat", (req, res) => {
-    let memberid = req.body['memberid'];
+    // let memberid = req.body['memberid'];
     let chatname = req.body['chatname'];
-    if (memberid && chatname) {
+    if (chatname) {
         db.one(`INSERT INTO Chats(Name) VALUES($1) RETURNING ChatID`, [chatname])
         .then((row) => {
             let chatid = row['chatid'];
