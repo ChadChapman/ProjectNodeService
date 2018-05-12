@@ -23,9 +23,42 @@ router.post('/', (req, res) => {
     var username = req.body['username'];
     var email = req.body['email'];
     var password = req.body['password'];
+    var confirmPassword = req.body['confirmPassword']
     //Verify that the caller supplied all the parameters
     //In js, empty strings or null values evaluate to false
     if(first && last && username && email && password) {
+        var atSymbol = email.lastIndexOf("@");//index of the @ in the email string
+        var valid = 1;
+        var numAts = 0;// Will only accept if 1 at is there.
+        for(var i = 0; i < email.length-1; i++){
+            if(email.charAt(i) === "@"){
+                numAts++;
+            }
+        }
+
+
+        if(password.length < 6){
+            valid--;
+            res.send({
+                success:false,
+                error:"password must be at least 6 characters"
+            })
+        }if(!(password === confirmPassword)){
+            valid--;
+            res.send({
+                succes:false,
+                error:"passwords don't match"
+            })
+        }if(atSymbol < 1 || atSymbol == email.length -1 || numAts > 1){
+            valid--;
+            res.send({
+                success: false,
+                error: "Not valid email"
+            })
+        }
+        if(valid > 0){
+            
+        }
         //We're storing salted hashes to make our application more secure
         //If you're interested as to what that is, and why we should use it
         //watch this youtube video: https://www.youtube.com/watch?v=8ZtInClXe1Q
