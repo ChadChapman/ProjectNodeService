@@ -13,19 +13,16 @@ app.use(bodyParser.json());
 let db = require('../utilities/utils').db;
 var router = express.Router();
 
-//app.get('/users') means accept http 'GET' requests at path '/users'
 router.post('/', (req, res) => {
-    let user = req.body['username'];
-
-    let wasSuccessful = false;
-    if(user) {
+    let MemberID = req.body['ID'];
+    if(MemberID) {
         //Using the 'one' method means that only one row should be returned
-        db.one('SELECT FirstName,LastName,Email FROM Members WHERE Username=$1', [user])
+        db.one('SELECT FirstName,LastName,Email,Username FROM Members WHERE MemberID=$1', [MemberID])
         //If successful, run function passed into .then()
         .then(row => {
             res.send({
                 success: true,
-                username: user,
+                username: row['username'],
                 firstname: row['firstname'],
                 lastname: row['lastname'],
                 email: row['email']
