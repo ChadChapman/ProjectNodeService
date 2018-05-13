@@ -49,7 +49,7 @@ router.post('/', (req, res) => {
                 message: verificationCode
             });
             let email = req.body['email'];
-            sendEmail(sender, email, verifyMessage, "<strong>Welcome to our app!</strong>");
+            sendEmail(sender, email, verifyMessage, "Your verifcation code is " + verificationCode);
         }).catch((err) => {
             //log the error
             console.log(err);
