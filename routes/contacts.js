@@ -42,7 +42,7 @@ router.post("/verified", (req, res) => {
                 INNER JOIN members 
                     ON contacts.memberid_a = members.memberid OR
                         contacts.memberid_b = members.memberid
-                WHERE verified = $2`
+                WHERE members.memberid = $1 AND verified = $2`
      
     db.manyOrNone(query, [userMemberID, 1])
     .then((data) => {
@@ -73,10 +73,10 @@ router.post("/sentRequest", (req, res) => {
                 , contacts.verified
                 FROM contacts
                 INNER JOIN members 
-                    ON contacts.memberid_a = members.memberid
+                    ON contacts.memberid_a = $1 AND contacts.memberid_b = members.memberid
                 ORDER BY members.username`
      
-    db.manyOrNone(query, [userMemberID, 1])
+    db.manyOrNone(query, [userMemberID])
     .then((data) => {
         res.send({
             success: true,
@@ -92,57 +92,72 @@ router.post("/sentRequest", (req, res) => {
     });
 });
 
+
 /*
    returns the recieved requests, which are all the contacts we have NOT initiated in adding
     eg: we received a request from them to connect
-    the member who initiates the contacts connection is recorded as memberid_b
+    the member who did not initiate the contacts connection is recorded as memberid_b
 */
 router.post("/recievedRequest", (req, res) => {
     let userMemberID = req.body['memberid'];
-    let query = `SELECT DISTINCT ON (members.username) members.username
+    if (userMemberID) {
+        let query = `SELECT DISTINCT ON (members.username) members.username
                 , members.email, members.memberid
                 , members.firstname, members.lastname
                 , contacts.verified
                 FROM contacts
                 INNER JOIN members 
-                    ON contacts.memberid_b = members.memberid
+                    ON contacts.memberid_b = $1 AND contacts.memberid_a = members.memberid
                 ORDER BY members.username`
-                
-     
-    db.manyOrNone(query, [userMemberID, 1])
-    .then((data) => {
-        res.send({
-            success: true,
-            contacts: data
-        
+        db.manyOrNone(query, [userMemberID])
+        .then((data) => {
+            res.send({
+                success: true,
+                contacts: data
+            
+            });
+        }).catch((error) => {
+            console.log(error);
+            res.send({
+                success: false,
+                error: error
+            })
         });
-    }).catch((error) => {
-        console.log(error);
+    } else {
         res.send({
             success: false,
-            error: error
+            error: "Missing memberid"
         })
-    });
+    }
 });
 
 /*
     seems to work so far in postman, creates new contacts records with two params
 */
 router.post("/createContact", (req, res) => {
-    let ida = req.body['ida'];
-    let idb = req.body['idb'];
-    db.manyOrNone('INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES($1, $2)', [ida, idb])
-    .then(() => {
-        res.send({
-            success: true,
+    let idA = req.body['id_a'];
+    let usernameB = req.body['username_b'];
+    if (idA && usernameB) {
+        //console.log(usernameB);
+        db.none(`INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES($1, 
+                    (SELECT MemberID from Members WHERE Username = $2))`, [idA, usernameB])
+        .then(() => {
+            res.send({
+                success: true,
+            });
+        }).catch((error) => {
+            console.log(error);
+            res.send({
+                success: false,
+                error: error
+            })
         });
-    }).catch((error) => {
-        console.log(error);
+    } else {
         res.send({
             success: false,
-            error: error
+            error: "Missing id_a or username_b"
         })
-    });
+    }
 });
 
 /*
