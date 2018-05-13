@@ -64,11 +64,11 @@ router.post("/", (req, res) => {
 router.post("/sendEmail", (req, res) => {
     let memberid = req.body['memberid'];
     if (memberid) {
-        var query = `SELECT Email FROM Members WHERE MemberID = $1`
+        var query = `SELECT Email, Verification FROM Members WHERE MemberID = $1`
         db.one(query, [memberid])
         .then((row) => {
             console.log(row['email']);
-            sendEmail(sender, row['email'], verifyMessage, "<strong>Welcome to our app!</strong>");
+            sendEmail(sender, row['email'], verifyMessage, "Your verifcation code is " + row['verification']);
             res.send({
                 success: true
             })
