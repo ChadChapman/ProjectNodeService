@@ -35,12 +35,10 @@ we will want to:
 router.post("/verified", (req, res) => {
     let userMemberID = req.body['memberid'];
     let query = `SELECT DISTINCT members.username, members.email, members.memberid, members.firstname, members.lastname
-    FROM contacts
-    INNER JOIN members
+    FROM contacts INNER JOIN members
     ON (contacts.memberid_a = members.memberid and contacts.memberid_b = $1)
     OR
     (contacts.memberid_b = members.memberid and contacts.memberid_a = $1)
-    
     WHERE verified = $2`
      
     db.manyOrNone(query, [userMemberID, 1])
