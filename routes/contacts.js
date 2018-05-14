@@ -35,14 +35,17 @@ we will want to:
 */
 router.post("/verified", (req, res) => {
     let userMemberID = req.body['memberid'];
-    let query = `SELECT DISTINCT members.username
-                , members.email, members.memberid
-                , members.firstname, members.lastname
-                FROM contacts
-                INNER JOIN members 
-                    ON contacts.memberid_a = members.memberid OR
-                        contacts.memberid_b = members.memberid
-                WHERE members.memberid = $1 AND verified = $2`
+    let verified = req.body['verified'];
+    let query = `SELECT DISTINCT members.username, members.email, members.memberid, members.firstname, members.lastname
+    FROM contacts
+    INNER JOIN members
+    ON (contacts.memberid_a = members.memberid and contacts.memberid_b = $1)
+    
+    OR
+    
+    (contacts.memberid_b = members.memberid and contacts.memberid_a = $1)
+    
+    WHERE verified = $2`
      
     db.manyOrNone(query, [userMemberID, 1])
     .then((data) => {
@@ -288,14 +291,15 @@ router.post("/update", (req, res) => {
 */
 router.post("/sentRequest", (req, res) => {
     let userMemberID = req.body['memberid'];
+    //Made sure that it does not return the user and it make sures that it checks both memberid a and b.
     let query = `SELECT DISTINCT ON (members.username) members.username
-                , members.email, members.memberid
-                , members.firstname, members.lastname
-                , contacts.verified
-                FROM contacts
-                INNER JOIN members 
-                    ON contacts.memberid_a = members.memberid
-                ORDER BY members.username`
+    , members.email, members.memberid
+    , members.firstname, members.lastname
+    , contacts.verified
+    FROM contacts
+    INNER JOIN members 
+        ON contacts.memberid_a = members.memberid
+    ORDER BY members.username`
      
     db.manyOrNone(query, [userMemberID, 1])
     .then((data) => {
