@@ -276,6 +276,110 @@ router.post("/update", (req, res) => {
     });
 });
 
+// beyond here be dragons, just commented out previously used methods, should all be deleted after all end points are working correctly
+/*
+    This should request a connection for a contact, so perhaps from the list of members we can select a member
+    then submit a request to that member to become contacts with them.
+    this will require: get the memberID of the member to send request to
+        ?send an email to that member to request adding them as a contact?
+        writing to Contacts table => this memberID, other memberID, verified=no, 
+        timestamp of creation=now, timestamp of last modified=now, 
+    
+*/
+router.post("/sentRequest", (req, res) => {
+    let userMemberID = req.body['memberid'];
+    let query = `SELECT DISTINCT ON (members.username) members.username
+                , members.email, members.memberid
+                , members.firstname, members.lastname
+                , contacts.verified
+                FROM contacts
+                INNER JOIN members 
+                    ON contacts.memberid_a = members.memberid
+                ORDER BY members.username`
+     
+    db.manyOrNone(query, [userMemberID, 1])
+    .then((data) => {
+        res.send({
+            success: true,
+            contacts: data
+        
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+
+/*
+   returns the recieved requests, which are all the contacts we have NOT initiated in adding
+    eg: we received a request from them to connect
+    the member who initiates the contacts connection is recorded as memberid_b
+*/
+router.post("/recievedRequest", (req, res) => {
+    let userMemberID = req.body['memberid'];
+    let query = `SELECT DISTINCT ON (members.username) members.username
+                , members.email, members.memberid
+                , members.firstname, members.lastname
+                , contacts.verified
+                FROM contacts
+                INNER JOIN members 
+                    ON contacts.memberid_b = members.memberid
+                ORDER BY members.username`
+                
+     
+    db.manyOrNone(query, [userMemberID, 1])
+    .then((data) => {
+        res.send({
+            success: true,
+            contacts: data
+        
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+
+// /*
+//     //I think this is same function as the /create end point above, commenting it out for now
+//     Initiate a request to another member to become Contacts with each other
+//     @param1 - MemberID of user initiating the request
+//     @param2 - MemberId of user receiving the Contacts request
+
+// */
+// router.post("/request", (req, res) => {
+//     var name = req.body['name'];
+//     if (name) {
+//         let params = [name];
+//         db.none("INSERT INTO DEMO(Text) VALUES ($1)", params)
+//         .then(() => {
+//             //We successfully addevd the name, let the user know
+//             res.send({
+//                 success: true
+//             });
+//         }).catch((err) => {
+//         //log the error
+//         console.log(err);
+//         res.send({
+//             success: false,
+//             error: err
+//             });
+//         });
+//     } else {
+//         res.send({
+//             success: false,
+//             input: req.body,
+//             error: "Missing required information"
+//         });
+//     }
+// });
+
 // beyond here be dragons, just commented out previously used methods,
 // should all be deleted after all end points are working correctly
 /*
@@ -367,7 +471,6 @@ router.post("/update", (req, res) => {
         cancel a contact request
         return all current unverified contact requests we sent
         ???
-
 */
 
 /*
@@ -384,7 +487,6 @@ router.post("/", (req, res) => {
     let userMemberID = req.body['my_MemberID'];
     db.manyOrNone('SELECT Username FROM Contacts, Members M WHERE MemberID_A = $1 AND MemberID_B = M.MemberID', [userMemberID]) //refactor to make just verified contacts?
    // db.manyOrNone('SELECT MemberId_B FROM Contacts WHERE MemberID_A = $1', [userMemberID])
-
     //If successful, run function passed into .then()
     .then((data) => {
         res.send({
@@ -400,6 +502,4 @@ router.post("/", (req, res) => {
     });
 });
 */
-
-
 module.exports = router;
