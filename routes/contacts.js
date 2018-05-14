@@ -118,12 +118,12 @@ router.post("/pendingRequest", (req, res) => {
     seems to work so far in postman, creates new contacts records with two params
 */
 router.post("/createContact", (req, res) => {
-    let idA = req.body['id_a'];
+    let memberid = req.body['memberid'];
     let usernameB = req.body['username_b'];
-    if (idA && usernameB) {
+    if (memberid && usernameB) {
         //console.log(usernameB);
         db.none(`INSERT INTO Contacts(MemberId_A, MemberID_B) VALUES($1, 
-                    (SELECT MemberID from Members WHERE Username = $2))`, [idA, usernameB])
+                    (SELECT MemberID from Members WHERE Username = $2))`, [memberid, usernameB])
         .then(() => {
             res.send({
                 success: true,
