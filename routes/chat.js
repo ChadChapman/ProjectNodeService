@@ -126,7 +126,7 @@ router.post("/getChatsByContact", (req, res) => {
  */
 router.post("/getRecentChats", (req, res) => {
     let memberid = req.body['memberid'];
-    let chatnumber = req.body['chatnumber'];
+   // let chatnumber = req.body['chatnumber'];
     if (memberid && chatnumber) {
         query = `SELECT C.ChatID FROM
         (SELECT ChatID FROM ChatMembers WHERE ChatMembers.MemberID = $1) AS C
@@ -137,8 +137,7 @@ router.post("/getRecentChats", (req, res) => {
         FROM Messages AS M1 GROUP BY M1.ChatID) AS M2
         ON M.ChatID = M2.ChatID AND M.TimeStamp = M2.TS) AS M3
         ON C.ChatID = M3.ChatID
-        ORDER BY M3.TimeStamp DESC
-        LIMIT $2`
+        ORDER BY M3.TimeStamp DESC`
 
         db.manyOrNone(query, [memberid, chatnumber])
         .then((data) => {
