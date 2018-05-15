@@ -69,15 +69,14 @@ router.post('/', (req, res) => {
         //Use .none() since no result gets returned from an INSERT in SQL
         //We're using placeholders ($1, $2, $3) in the SQL query string to avoid SQL Injection
         //If you want to read more: https://stackoverflow.com/a/8265319
-        let params = [first, last, username, email, salted_hash, salt];
-        db.one("INSERT INTO MEMBERS(FirstName, LastName, Username, Email,Password, Salt) VALUES ($1, $2, $3, $4, $5, $6) RETURNING MemberID", params)
+         //Generate a verfication code
+         var verificationCode = Math.floor(Math.random() * 9999);
+        let params = [first, last, username, email, verificationCode, salted_hash, salt];
+        db.one("INSERT INTO MEMBERS(FirstName, LastName, Username, Email, Verification, Password, Salt) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING MemberID", params)
         .then((row) => {
-            //Generate a verfication code
-            var verificationCode = Math.floor(Math.random() * 9999);
             //We successfully added the user, let the user know
             res.send({
                 success: true,
-                message: verificationCode,
                 memberid: row['memberid']
             });
             let email = req.body['email'];
