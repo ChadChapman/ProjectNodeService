@@ -57,7 +57,8 @@ router.post("/verified", (req, res) => {
     });
 });
 /*
-    This is to show all pending request from the user
+* Pass in a memberid and get back all profile info from memebers with whom you 
+* have generated a request.
 */
 router.post("/sentRequest", (req, res) => {
     let userMemberID = req.body['memberid'];
@@ -85,7 +86,8 @@ router.post("/sentRequest", (req, res) => {
 
 
 /*
-    This is all pending request to the user
+* Pass in a memberid and get back all profile info from memebers who have generated a request
+* with you.
 */
 router.post("/pendingRequest", (req, res) => {
     let userMemberID = req.body['memberid'];
@@ -141,6 +143,38 @@ router.post("/createContact", (req, res) => {
     }
 });
 
+/*
+    Can be used to modify a contact record given a user's id and the id of a contact they want to 
+    modify as well as the value they want the verified column to be set to. This applies to cancelling 
+    a request sent by you, cancelling a request sent to you, and deleting a previously verified 
+    contact.
+
+    To accept request set value(verified) to 1
+    To delete request or contact set value to -9
+
+    **Note it does not matter which order the memberids are sent
+*/
+router.post("/updateContactOrRequest", (req, res) => {
+    let ida = req.body['ida'];
+    let idb = req.body['idb'];
+    let value = req.body['value'];
+    let query = `UPDATE Contacts SET Verified = $3
+                   WHERE (MemberID_A =$1 OR MemberID_A = $2)
+                   AND (MemberID_B = $1 OR MemberID_B = $2)`
+    db.manyOrNone(query, [ida, idb, value])
+    .then(() => {
+        res.send({
+            success: true,
+        });
+    }).catch((error) => {
+        console.log(error);
+        res.send({
+            success: false,
+            error: error
+        })
+    });
+});
+
 
 /*
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -181,6 +215,34 @@ router.post("/createContact", (req, res) => {
 //     });
 // });
 
+// /*
+//     Removes a row from Contacts table, permanently.  
+//     Uses params of both memberID fields to specify which row is deleted.
+//     In the future we may want to modify or extend this to delete unverified contacts, etc.
+//     However, my current thought is we can do all of that on the device / front -end then
+//     simply send a request here to delete after choice has been made on which row is
+//     being removed.  
+//     Alternatively, we could simply have contacts contain a "deleted" column so a row can be recovered
+//     but I'm not sure this is needed or is ever expected by a user.
+// */
+// router.post("/deleteContact", (req, res) => {
+//     let ida = req.body['ida'];
+//     let idb = req.body['idb'];
+//     let query = `DELETE FROM contacts
+//                 WHERE memberid_a = $1 AND memberid_b = $2`
+//     db.manyOrNone(query, [ida, idb])
+//     .then(() => {
+//         res.send({
+//             success: true,
+//         });
+//     }).catch((error) => {
+//         console.log(error);
+//         res.send({
+//             success: false,
+//             error: error
+//         })
+//     });
+// });
 
 // /*
 //    returns the recieved requests, which are all the contacts we have NOT initiated in adding
@@ -249,34 +311,7 @@ router.post("/createContact", (req, res) => {
 //     }
 // });
 
-// /*
-//     Removes a row from Contacts table, permanently.  
-//     Uses params of both memberID fields to specify which row is deleted.
-//     In the future we may want to modify or extend this to delete unverified contacts, etc.
-//     However, my current thought is we can do all of that on the device / front -end then
-//     simply send a request here to delete after choice has been made on which row is
-//     being removed.  
-//     Alternatively, we could simply have contacts contain a "deleted" column so a row can be recovered
-//     but I'm not sure this is needed or is ever expected by a user.
-// */
-// router.post("/deleteContact", (req, res) => {
-//     let ida = req.body['ida'];
-//     let idb = req.body['idb'];
-//     let query = `DELETE FROM contacts
-//                 WHERE memberid_a = $1 AND memberid_b = $2`
-//     db.manyOrNone(query, [ida, idb])
-//     .then(() => {
-//         res.send({
-//             success: true,
-//         });
-//     }).catch((error) => {
-//         console.log(error);
-//         res.send({
-//             success: false,
-//             error: error
-//         })
-//     });
-// });
+
 
 // /*
 //     Declines a contacts request the current user has recieved.
