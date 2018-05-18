@@ -152,7 +152,7 @@ router.post("/createContact", (req, res) => {
     To accept request set value(verified) to 1
     To delete request or contact set value to -9
 
-    **Note it does not matter which order the memberids are sent in
+    **Note it does not matter which order the memberids are sent
 */
 router.post("/updateContactOrRequest", (req, res) => {
     let ida = req.body['ida'];
