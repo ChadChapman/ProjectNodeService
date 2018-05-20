@@ -19,7 +19,7 @@ var router = express.Router();
  * ChatMembers to the chat.
  */
 router.post("/newChat", (req, res) => {
-    // let memberid = req.body['memberid'];
+    
     let chatname = req.body['chatname'];
     if (chatname) {
         db.one(`INSERT INTO Chats(Name) VALUES($1) RETURNING ChatID`, [chatname])
@@ -40,10 +40,57 @@ router.post("/newChat", (req, res) => {
     } else {
         res.send({
             success: false,
-            error: "Missing Chat.Name or MemberID"
+            error: "Missing Chat.Name"
         })
     }
 });
+
+/**
+ * Used to create all chatMembers for a newly created chat.  
+ * Send in a chatid and a JSON Array of members who are included in the new chat
+ * A new ChatMember will be inserted for each one.
+ * Similar to /addChat but tries to eliminate an ep call for every member added
+ */
+router.post("/addNewChatMembers", (req, res) => {
+    let chatid = req.body['chatid'];
+    let memberArray = req.body['memberarray'];
+    var memberidArr = new Array(memberArray.length);
+    var errorOccured = true;
+    for (var i = 0; i < memberArray.length; i++) {
+        var addMemberID = memberArray[i];
+        console.log(addMemberID);
+        if (chatid && memberid) {
+            db.none(`INSERT INTO ChatMembers(ChatID, MemberID) VALUES($1, $2)`, [chatid, addMemberid])
+            .then(() => {
+                res.send({
+                    success: true
+                })
+            })
+    }
+
+
+    
+        //iterate through and get each memberid from the usernames
+
+        //then use the memberid to insert into the db
+        
+        
+           // errorOccured = (errorOccured && )
+            
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing chatid or memberid or insert failed"
+        })
+    }
+})
+
 
 /**
  * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 

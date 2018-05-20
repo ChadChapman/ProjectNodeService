@@ -45,3 +45,10 @@ function getHash(pw, salt) {
 module.exports = {
     db, getHash, sendEmail
 };
+
+function insertChatMember(paramChatID, paramMemberID) {
+  //use logical and so if an error occurs, the 'false' will stick
+  var noErrorsOccured = true;
+  
+  return noErrorsOccured;
+}
