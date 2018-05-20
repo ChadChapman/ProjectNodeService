@@ -58,17 +58,25 @@ router.post("/addNewChatMembers", (req, res) => {
     let chatid = req.body['chatid'];
     //not sure if javascript will modify the above one or not, better make a second
     let idStringToSplit= req.body['chatidtosplit'];
-    var userNamesArr = idStringToSplit.split("+");
+    var usernamesArr = idStringToSplit.split("+");
+    var usernamesNotFoundArr = new Array(1);
     var errorOccured = true;
-    for (var i = 0; i < userNamesArr.length; i++) {
-        //still need to get the memberid from the user name!
-        var addMemberID = userNamesArr[i];
-        console.log(addMemberID);
-        errorOccured = (errorOccured && utils.errorOccured(chatid,addMemberID));
+    for (var i = 0; i < usernamesArr.length; i++) {
+        //get the memberid out of it first
+        var addMemberUsername = usernamesArr[i];
+        console.log("add this username = " + addMemberUsername);
+        var addMemberID = utils.getMemberIDFromUsername(addMemberUsername);
+        console.log("add this memberID = " + addMemberID);
+        if (addMemberID > 0) {
+        errorOccured = (errorOccured && utils.addMemberID(chatid,addMemberID));
+        } else {
+            usernamesNotFoundArr.push(addMemberUsername);
+        }
     }
     res.send({
                 success: errorOccured,
-                error: "whelp something borked on the insert new members part"
+                error: "whelp something borked on the insert new members part",
+                notfound: usernamesNotFoundArr.toString()
             })
         })
 

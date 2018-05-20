@@ -42,10 +42,6 @@ function getHash(pw, salt) {
     return crypto.createHash("sha256").update(pw + salt).digest("hex");
 }
 
-module.exports = {
-    db, getHash, sendEmail, insertChatMember
-};
-
 function insertChatMember(paramChatID, paramMemberID) {
   //use logical and so if an error occurs, the 'false' will stick
   var noErrorsOccured = true;
@@ -63,3 +59,26 @@ function insertChatMember(paramChatID, paramMemberID) {
     
   return noErrorsOccured;
 }
+
+function getMemberIDFromUsername(paramUsername) {
+  var memberID = -1;
+  query = `SELECT memberid
+          FROM members
+          WHERE username = $1`
+  db.none(query, [paramUsername])
+  .then((data) => {
+    //return noErrorsOccured;
+    memberID = data;
+    console.log("memberid fetched from username = " + memberID);
+    })   
+  .catch((err) => {
+    memberID = -99;
+    console.log("error occured getting memberid from the username in utils");
+    });
+  return memberID;
+}
+
+module.exports = {
+    db, getHash, sendEmail, insertChatMember,
+};
+
