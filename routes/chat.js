@@ -57,7 +57,7 @@ router.post("/newChat", (req, res) => {
 router.post("/addNewChatMembers", (req, res) => {
     //take in a string, tokenize it to an array:
 
-    let chatid = req.body['chatid'];
+    var chatid = req.body['chatid'];
     //not sure if javascript will modify the above one or not, better make a second
     let idStringToSplit= req.body['chatidtosplit'];
     var usernamesArr = idStringToSplit.split("+");
@@ -65,7 +65,7 @@ router.post("/addNewChatMembers", (req, res) => {
     var usernamesNotFoundArr = new Array(1);
     var errorOccured = true;
     for (var i = 0; i < usernamesArr.length; i++) {
-        //get the memberid out of it first
+        //get the username out of it first
         var addMemberUsername = usernamesArr[i];
         console.log("add this username = " + addMemberUsername);
     //     var addMemberID = functiongetMemberIDFromUsername(addMemberUsername);
@@ -76,12 +76,12 @@ router.post("/addNewChatMembers", (req, res) => {
     //         usernamesNotFoundArr.push(addMemberUsername);
     //     }
         async.waterfall([
-            getMemberIDFromUsername //,
-            //mySecondFunction,
+            getMemberIDFromUsername,
+            insertChatMember,
             //myLastFunction,
         ], function (err, result) {
-            console.log(result);//retrieves all 3 memberids from usernames
-            console.log(error);
+            console.log("this was the final result : " + result);//retrieves all 3 memberids from usernames
+            //console.log(err);
         });
         function getMemberIDFromUsername(callback) {
             query = `SELECT memberid
@@ -90,14 +90,36 @@ router.post("/addNewChatMembers", (req, res) => {
             db.one(query, [addMemberUsername])
             .then((data) => {
               
-              callback(null, data.memberid);  
+              callback(null, data.memberid);  //this should pass memberid to the next function
             })   
             .catch((err) => {
               return -99;
               console.log(err.toString());
               console.log("error occured getting memberid from the username");
               
-              });
+              });//should next function go here?
+          } //or here?
+          function insertChatMember(memberID, callback) {
+            //use logical and so if an error occurs, the 'false' will stick
+            //arg1 should equal the memberid from the previous async function
+            var noErrorsOccured = true; 
+            console.log("inside insertChatMember, chatid = , arg1 = " + chatid + " " + memberID);
+            query = `INSERT INTO chatmembers
+                    (ChatID, MemberID)
+                    VALUES ($1, $2)`
+            db.none(query, [chatid, memberID])
+            .then(() => {
+              //return noErrorsOccured;
+              console.log("record inserted++ CHATID, MEMBERID" + chatid + " " + memberID);
+              callback(null, "record inserted++");
+            })   
+            .catch((err) => {
+                message = "error occured on insert"
+                console.log(message);
+              noErrorsOccured = false;
+              callback(null, message);
+              return noErrorsOccured;
+              });           
           }
      }
     res.send({
@@ -105,7 +127,7 @@ router.post("/addNewChatMembers", (req, res) => {
                 error: "whelp something borked on the insert new members part",
                 notfound: usernamesNotFoundArr.toString()
             })
-        })
+        }) //not sure if the close parens here is needed?
         
 /**
  * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 

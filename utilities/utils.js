@@ -60,7 +60,7 @@ function insertChatMember(paramChatID, paramMemberID) {
   return noErrorsOccured;
 }
 
-;
+
 function getMemberIDFromUsername(paramUsername) {
   memberID = -11;
   query = `SELECT memberid
