@@ -60,15 +60,17 @@ function insertChatMember(paramChatID, paramMemberID) {
   return noErrorsOccured;
 }
 
+;
 function getMemberIDFromUsername(paramUsername) {
-  var memberID = -1;
+  memberID = -11;
   query = `SELECT memberid
           FROM members
           WHERE username = $1`
   db.none(query, [paramUsername])
   .then((data) => {
     //return noErrorsOccured;
-    memberID = data;
+    //memberID = data;
+    console.log(data);
     console.log("memberid fetched from username = " + memberID);
     })   
   .catch((err) => {
