@@ -50,85 +50,79 @@ router.post("/newChat", (req, res) => {
 
 /**
  * Used to create all chatMembers for a newly created chat.  
- * Send in a chatid and a JSON Array of members who are included in the new chat
+ * Send in a chatid and the chatname, which consists of members who are included in the new chat
  * A new ChatMember will be inserted for each one.
  * Similar to /addChat but tries to eliminate an ep call for every member added
  */
 router.post("/addNewChatMembers", (req, res) => {
-    //take in a string, tokenize it to an array:
-
+    
     chatid = req.body['chatid'];
     console.log("PARSED OUT CHATID WAS: " + chatid);
-    //not sure if javascript will modify the above one or not, better make a second
-    let idStringToSplit= req.body['chatidtosplit'];
-    var usernamesArr = idStringToSplit.split("+");
+    let chatnameStringToSplit= req.body['chatname'];
+    success = false;
+
+    //make an array of usernames to add to the new chat
+    var usernamesArr = chatnameStringToSplit.split("+");
     console.log("number of users in chat = " + usernamesArr.length)
-    var usernamesNotFoundArr = new Array(1);
-    var errorOccured = true;
+    var errorsRecordArr = new Array(1);
+    
+    //now go through each username, add that user to chatmembers
     for (var i = 0; i < usernamesArr.length; i++) {
+        
         //get the username out of it first
         var addMemberUsername = usernamesArr[i];
         console.log("add this username = " + addMemberUsername);
-    //     var addMemberID = functiongetMemberIDFromUsername(addMemberUsername);
-    //     console.log("add this memberID = " + addMemberID);
-    //     if (addMemberID > 0) {
-    //     errorOccured = (errorOccured && utils.addMemberID(chatid,addMemberID));
-    //     } else {
-    //         usernamesNotFoundArr.push(addMemberUsername);
-    //     }
+
+        //ok, now start the callbacks to get the memberid then insert the record
         async.waterfall([
             getMemberIDFromUsername,
             insertChatMember,
-            //myLastFunction,
-        ], function (err, result) {
-            console.log("this was the final result : " + result);//retrieves all 3 memberids from usernames
-            console.log(err);
-        });
-        function getMemberIDFromUsername(callback) {
+            //myLastFunction, just a placeholder for now to remind me how ot do this, hahahaha
+        ], function (err, result) {//this function is the final callback, should hold results for the outer function
+            console.log("this was the final result : " + result);
+            if(err) {//tracking errors in aggregate so we can examine them later
+                //success = (success && ;
+                errorsRecordArr.push(err.toString());
+                console.log(err);
+            }  else {
+
+            }       
+        }); //end "return" callback which will hold the "final" values we want returned from the functions
+        function getMemberIDFromUsername(callback) {//the first callback, is not passed anything
             query = `SELECT memberid
                     FROM members
                     WHERE username = $1`
             db.one(query, [addMemberUsername])
             .then((data) => {
-              
               callback(null, data.memberid);  //this should pass memberid to the next function
             })   
             .catch((err) => {
-              return -99;
-              console.log(err.toString());
               console.log("error occured getting memberid from the username");
-              
-              });//should next function go here?
-          } //or here?
-          function insertChatMember(memberID, callback) {
-            //use logical and so if an error occurs, the 'false' will stick
-            //arg1 should equal the memberid from the previous async function
-            var noErrorsOccured = true; 
-            //var innerChatID = this.chatid;
+              });
+          }
+          function insertChatMember(memberID, callback) { //second callback function, waits on memberid from the first callback
             console.log("inside insertChatMember, chatid = , arg1 = |" + chatid + ", " + memberID);
             query = `INSERT INTO chatmembers
                     (ChatID, MemberID)
                     VALUES ($1, $2)`
             db.none(query, [chatid, memberID])
             .then(() => {
-              //return noErrorsOccured;
-              message = "record inserted++";
-              console.log("record inserted++ CHATID, MEMBERID" + chatid + " " + memberID);
+              message = "SUCCESS! : record inserted++";
+              console.log("record inserted++ CHATID, MEMBERID | | " + chatid + " " + memberID);
               callback(null, message);
             })   
             .catch((err) => {
                 message = "error occured on insert"
                 console.log(message);
-              noErrorsOccured = false;
               callback(null, message);
-              //return noErrorsOccured;
               });           
           }
      }
     res.send({
                 success: errorOccured,
                 error: "whelp something borked on the insert new members part",
-                notfound: usernamesNotFoundArr.toString()
+                notfound: usernamesNotFoundArr.toString(),
+                errorsArray: errorsRecordArr.toString()
             })
         }) //not sure if the close parens here is needed?
         
