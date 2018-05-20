@@ -11,6 +11,7 @@ app.use(bodyParser.json());
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
 
+
 var router = express.Router();
 
 /**
@@ -59,37 +60,13 @@ router.post("/addNewChatMembers", (req, res) => {
     for (var i = 0; i < memberArray.length; i++) {
         var addMemberID = memberArray[i];
         console.log(addMemberID);
-        if (chatid && memberid) {
-            db.none(`INSERT INTO ChatMembers(ChatID, MemberID) VALUES($1, $2)`, [chatid, addMemberid])
-            .then(() => {
-                res.send({
-                    success: true
-                })
-            })
+        errorOccured = (errorOccured && utils.errorOccured(chatid,addMemberID));
     }
-
-
-    
-        //iterate through and get each memberid from the usernames
-
-        //then use the memberid to insert into the db
-        
-        
-           // errorOccured = (errorOccured && )
-            
-        .catch((err) => {
-            res.send({
-                success: false,
-                error: err
+    res.send({
+                success: errorOccured,
+                error: "whelp something borked on the insert new members part"
             })
-        });
-    } else {
-        res.send({
-            success: false,
-            error: "Missing chatid or memberid or insert failed"
         })
-    }
-})
 
 
 /**

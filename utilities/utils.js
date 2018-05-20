@@ -43,12 +43,23 @@ function getHash(pw, salt) {
 }
 
 module.exports = {
-    db, getHash, sendEmail
+    db, getHash, sendEmail, insertChatMember
 };
 
 function insertChatMember(paramChatID, paramMemberID) {
   //use logical and so if an error occurs, the 'false' will stick
   var noErrorsOccured = true;
-  
+  query = `INSERT INTO chatmembers
+          (ChatID, MemberID)
+          VALUES ($1, $2)`
+  db.none(query, [paramChatID, paramMemberID])
+  .then(() => {
+    //return noErrorsOccured;
+    console.log("record inserted++ CHATID, MEMBERID" + paramChatID + " " + paramMemberID);
+    })   
+  .catch((err) => {
+    noErrorsOccured = false;
+    });
+    
   return noErrorsOccured;
 }
