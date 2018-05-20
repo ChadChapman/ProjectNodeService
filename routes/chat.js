@@ -57,7 +57,8 @@ router.post("/newChat", (req, res) => {
 router.post("/addNewChatMembers", (req, res) => {
     //take in a string, tokenize it to an array:
 
-    var chatid = req.body['chatid'];
+    chatid = req.body['chatid'];
+    console.log("PARSED OUT CHATID WAS: " + chatid);
     //not sure if javascript will modify the above one or not, better make a second
     let idStringToSplit= req.body['chatidtosplit'];
     var usernamesArr = idStringToSplit.split("+");
@@ -81,7 +82,7 @@ router.post("/addNewChatMembers", (req, res) => {
             //myLastFunction,
         ], function (err, result) {
             console.log("this was the final result : " + result);//retrieves all 3 memberids from usernames
-            //console.log(err);
+            console.log(err);
         });
         function getMemberIDFromUsername(callback) {
             query = `SELECT memberid
@@ -103,22 +104,24 @@ router.post("/addNewChatMembers", (req, res) => {
             //use logical and so if an error occurs, the 'false' will stick
             //arg1 should equal the memberid from the previous async function
             var noErrorsOccured = true; 
-            console.log("inside insertChatMember, chatid = , arg1 = " + chatid + " " + memberID);
+            //var innerChatID = this.chatid;
+            console.log("inside insertChatMember, chatid = , arg1 = |" + chatid + ", " + memberID);
             query = `INSERT INTO chatmembers
                     (ChatID, MemberID)
                     VALUES ($1, $2)`
             db.none(query, [chatid, memberID])
             .then(() => {
               //return noErrorsOccured;
+              message = "record inserted++";
               console.log("record inserted++ CHATID, MEMBERID" + chatid + " " + memberID);
-              callback(null, "record inserted++");
+              callback(null, message);
             })   
             .catch((err) => {
                 message = "error occured on insert"
                 console.log(message);
               noErrorsOccured = false;
               callback(null, message);
-              return noErrorsOccured;
+              //return noErrorsOccured;
               });           
           }
      }
