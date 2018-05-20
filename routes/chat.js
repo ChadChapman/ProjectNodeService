@@ -80,24 +80,16 @@ router.post("/addNewChatMembers", (req, res) => {
             //mySecondFunction,
             //myLastFunction,
         ], function (err, result) {
-            console.log(result);
+            console.log(result);//retrieves all 3 memberids from usernames
             console.log(error);
         });
         function getMemberIDFromUsername(callback) {
-            //console.log(paramUsername);
-            //memberID;
             query = `SELECT memberid
                     FROM members
                     WHERE username = $1`
             db.one(query, [addMemberUsername])
             .then((data) => {
-              //return noErrorsOccured;
-              //memberID = data.memberid;
-              //return memberID;
-              //id = data.body['memberid'];
-              //console.log(id);
-              //console.log("memberid fetched from username = " + data.memberid);
-              //console.log("id being returned = " + memberID);
+              
               callback(null, data.memberid);  
             })   
             .catch((err) => {
@@ -106,8 +98,6 @@ router.post("/addNewChatMembers", (req, res) => {
               console.log("error occured getting memberid from the username");
               
               });
-            //return memberID;
-            
           }
      }
     res.send({
@@ -116,32 +106,7 @@ router.post("/addNewChatMembers", (req, res) => {
                 notfound: usernamesNotFoundArr.toString()
             })
         })
-
-        // function getMemberIDFromUsername(paramUsername) {
-        //     console.log(paramUsername);
-        //     memberID;
-        //     query = `SELECT memberid
-        //             FROM members
-        //             WHERE username = $1`
-        //     db.one(query, [paramUsername])
-        //     .then((data) => {
-        //       //return noErrorsOccured;
-        //       memberID = data.memberid;
-        //       //return memberID;
-        //       //id = data.body['memberid'];
-        //       //console.log(id);
-        //       //console.log("memberid fetched from username = " + data.memberid);
-        //       console.log("id being returned = " + memberID);
-        //       })   
-        //     .catch((err) => {
-        //       return -99;
-        //       console.log(err.toString());
-        //       console.log("error occured getting memberid from the username");
-              
-        //       });
-        //     return memberID;
-        //   }
-
+        
 /**
  * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 
  * thier contacts) and ChatMember will be inserted.
