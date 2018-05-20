@@ -53,12 +53,16 @@ router.post("/newChat", (req, res) => {
  * Similar to /addChat but tries to eliminate an ep call for every member added
  */
 router.post("/addNewChatMembers", (req, res) => {
+    //take in a string, tokenize it to an array:
+
     let chatid = req.body['chatid'];
-    let memberArray = req.body['memberarray'];
-    var memberidArr = new Array(memberArray.length);
+    //not sure if javascript will modify the above one or not, better make a second
+    let idStringToSplit= req.body['chatidtosplit'];
+    var userNamesArr = idStringToSplit.split("+");
     var errorOccured = true;
-    for (var i = 0; i < memberArray.length; i++) {
-        var addMemberID = memberArray[i];
+    for (var i = 0; i < userNamesArr.length; i++) {
+        //still need to get the memberid from the user name!
+        var addMemberID = userNamesArr[i];
         console.log(addMemberID);
         errorOccured = (errorOccured && utils.errorOccured(chatid,addMemberID));
     }
