@@ -7,11 +7,14 @@ const app = express();
 const bodyParser = require("body-parser");
 //This allows parsing of the body of POST requests, that are encoded in JSON
 app.use(bodyParser.json());
+const async = require('async');
 
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
+let utils = require('../utilities/utils');
 
 var router = express.Router();
+
 
 /**
  * Create a brand new chat.  The new chat will have no members associated with it at first.
@@ -19,7 +22,7 @@ var router = express.Router();
  * ChatMembers to the chat.
  */
 router.post("/newChat", (req, res) => {
-    // let memberid = req.body['memberid'];
+    
     let chatname = req.body['chatname'];
     if (chatname) {
         db.one(`INSERT INTO Chats(Name) VALUES($1) RETURNING ChatID`, [chatname])
@@ -40,11 +43,70 @@ router.post("/newChat", (req, res) => {
     } else {
         res.send({
             success: false,
-            error: "Missing Chat.Name or MemberID"
+            error: "Missing Chat.Name"
         })
     }
 });
 
+/**
+ * Used to create all chatMembers for a newly created chat.  
+ * Send in a chatid and a JSON Array of members who are included in the new chat
+ * A new ChatMember will be inserted for each one.
+ * Similar to /addChat but tries to eliminate an ep call for every member added
+ */
+router.post("/addNewChatMembers", (req, res) => {
+    //take in a string, tokenize it to an array:
+
+    let chatid = req.body['chatid'];
+    //not sure if javascript will modify the above one or not, better make a second
+    let idStringToSplit= req.body['chatidtosplit'];
+    var usernamesArr = idStringToSplit.split("+");
+    console.log("number of users in chat = " + usernamesArr.length)
+    var usernamesNotFoundArr = new Array(1);
+    var errorOccured = true;
+    for (var i = 0; i < usernamesArr.length; i++) {
+        //get the memberid out of it first
+        var addMemberUsername = usernamesArr[i];
+        console.log("add this username = " + addMemberUsername);
+    //     var addMemberID = functiongetMemberIDFromUsername(addMemberUsername);
+    //     console.log("add this memberID = " + addMemberID);
+    //     if (addMemberID > 0) {
+    //     errorOccured = (errorOccured && utils.addMemberID(chatid,addMemberID));
+    //     } else {
+    //         usernamesNotFoundArr.push(addMemberUsername);
+    //     }
+        async.waterfall([
+            getMemberIDFromUsername //,
+            //mySecondFunction,
+            //myLastFunction,
+        ], function (err, result) {
+            console.log(result);//retrieves all 3 memberids from usernames
+            console.log(error);
+        });
+        function getMemberIDFromUsername(callback) {
+            query = `SELECT memberid
+                    FROM members
+                    WHERE username = $1`
+            db.one(query, [addMemberUsername])
+            .then((data) => {
+              
+              callback(null, data.memberid);  
+            })   
+            .catch((err) => {
+              return -99;
+              console.log(err.toString());
+              console.log("error occured getting memberid from the username");
+              
+              });
+          }
+     }
+    res.send({
+                success: errorOccured,
+                error: "whelp something borked on the insert new members part",
+                notfound: usernamesNotFoundArr.toString()
+            })
+        })
+        
 /**
  * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 
  * thier contacts) and ChatMember will be inserted.
