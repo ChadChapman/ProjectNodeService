@@ -79,6 +79,6 @@ function getMemberIDFromUsername(paramUsername) {
 }
 
 module.exports = {
-    db, getHash, sendEmail, insertChatMember,
+    db, getHash, sendEmail, insertChatMember, getMemberIDFromUsername
 };
 

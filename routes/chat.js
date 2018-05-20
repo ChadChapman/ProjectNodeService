@@ -10,7 +10,7 @@ app.use(bodyParser.json());
 
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
-
+let utils = require('../utilities/utils');
 
 var router = express.Router();
 
@@ -59,6 +59,7 @@ router.post("/addNewChatMembers", (req, res) => {
     //not sure if javascript will modify the above one or not, better make a second
     let idStringToSplit= req.body['chatidtosplit'];
     var usernamesArr = idStringToSplit.split("+");
+    console.log("number of users in chat = " + usernamesArr.length)
     var usernamesNotFoundArr = new Array(1);
     var errorOccured = true;
     for (var i = 0; i < usernamesArr.length; i++) {
