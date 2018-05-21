@@ -59,7 +59,7 @@ router.post("/addNewChatMembers", (req, res) => {
     chatid = req.body['chatid'];
     console.log("PARSED OUT CHATID WAS: " + chatid);
     let chatnameStringToSplit= req.body['chatname'];
-    success = false;
+    noErrorsOccured = true;
 
     //make an array of usernames to add to the new chat
     var usernamesArr = chatnameStringToSplit.split("+");
@@ -80,8 +80,8 @@ router.post("/addNewChatMembers", (req, res) => {
             //myLastFunction, just a placeholder for now to remind me how ot do this, hahahaha
         ], function (err, result) {//this function is the final callback, should hold results for the outer function
             console.log("this was the final result : " + result);
+            noErrorsOccured = (noErrorsOccured && !(err === null))
             if(err) {//tracking errors in aggregate so we can examine them later
-                //success = (success && ;
                 errorsRecordArr.push(err.toString());
                 console.log(err);
             }  else {
@@ -119,9 +119,8 @@ router.post("/addNewChatMembers", (req, res) => {
           }
      }
     res.send({
-                success: errorOccured,
-                error: "whelp something borked on the insert new members part",
-                notfound: usernamesNotFoundArr.toString(),
+                success: noErrorsOccured,
+                errorcount: errorsRecordArr.length, 
                 errorsArray: errorsRecordArr.toString()
             })
         }) //not sure if the close parens here is needed?
