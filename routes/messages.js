@@ -11,7 +11,7 @@ var router = express.Router();
 router.post('/sendMessages', (req, res) => {
     let username = req.body['username'];
     let message = req.body['message'];
-    let chatId = req.body['chatId'];
+    let chatId = req.body['chatid'];
 
     if(!username || !message || !chatId){
         res.send({
@@ -34,7 +34,6 @@ router.post('/sendMessages', (req, res) => {
             error: err,
         });
     });
-
 });
 
 router.get("/getMessages", (req, res) => {
@@ -60,6 +59,7 @@ router.get("/getMessages", (req, res) => {
         })
     });
 });
+
 
 
 module.exports = router;

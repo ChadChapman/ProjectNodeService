@@ -1,3 +1,5 @@
+
+
 //express is the framework we're going to use to handle requests
 const express = require('express');
 //Create a new instance of express
@@ -8,91 +10,139 @@ app.use(bodyParser.json());
 
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
-/*
-    //pg-promise is a postgres library that uses javascript promises
-    const pgp = require('pg-promise')();
-    //We have to set ssl usage to true for Heroku to accept our connection
-    pgp.pg.defaults.ssl = true;
-    Create connection to Heroku Database
-    let db;
-    //Uncomment next line and change the string to your DATABASE_URL
-    db = pgp('postgres://nhalvucsuqwpfk:7cc02a001a0dec4a123302faabb938c9530ec5642eb9378092a7ba91802ae1d8@ec2-54-221-192-231.compute-1.amazonaws.com:5432/dv4igi32q700c');
 
-    if(!db) {
-        console.log("SHAME! Follow the intructions and set your DATABASE_URL correctly");
-        process.exit(1);
-    }
-*/
 var router = express.Router();
 
-/*
-    This should request a connection for a contact, so perhaps from the list of members we can select a member
-    then submit a request to that member to become contacts with them.
-    this will require: get the memberID of the member to send request to
-        ?send an email to that member to request adding them as a contact?
-        writing to Contacts table => this memberID, other memberID, verified=no, 
-        timestamp of creation=now, timestamp of last modified=now, 
-*/
-router.post("/", (req, res) => {
-    let memberID = req.body['memberid'];
-    let chatID = req.body['chatid'];
-    let theMessage = req.body['message'];
-    if (memberID && chatID) {
-        db.none("INSERT INTO Messages(ChatID, TheMessage, MemberID) VALUES (" + [chatID] +
-        ", " + [theMessage] + ", " + [memberID] + ")")
-        .then((data) => {
-            //We successfully added the message, let the user know
+/**
+ * Create a brand new chat.  The new chat will have no members associated with it at first.
+ * This post returns the chatid and the front-end code must catch that id in order to add
+ * ChatMembers to the chat.
+ */
+router.post("/newChat", (req, res) => {
+    // let memberid = req.body['memberid'];
+    let chatname = req.body['chatname'];
+    if (chatname) {
+        db.one(`INSERT INTO Chats(Name) VALUES($1) RETURNING ChatID`, [chatname])
+        .then((row) => {
+            let chatid = row['chatid'];
+            
             res.send({
                 success: true,
-                message: data
-            });
-        }).catch((err) => {
-        //log the error
-        console.log(err);
-        res.send({
-            success: false,
-            error: err
-            });
+                message: chatid 
+            })
+        })
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
         });
     } else {
         res.send({
             success: false,
-            input: req.body,
-            error: "Missing required information"
-        });
+            error: "Missing Chat.Name or MemberID"
+        })
     }
 });
 
-/*
-    similar to comment in header, the get function will likely need to have mutiple additional end points
-    to start:
-        all verified contacts associated with this member
-            from Contacts all records where memberID = this user's memberID and verified=true,
-            then get memberID of all matching records, then return username, ?first and/or last name? of 
-            matched users
-            further on: status indicator if that contact is active/available right nows
-    to add:
-        return contacts who we connected with who have recently verified the contact connection
-        return contacts who have requested a contact connection
-        send a new contact request
-        cancel a contact request
-        return all current unverified contact requests we sent
-        ???
+/**
+ * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 
+ * thier contacts) and ChatMember will be inserted.
+ */
+router.post("/addChat", (req, res) => {
+    let chatid = req.body['chatid'];
+    let memberid = req.body['memberid'];
 
-*/
+    if (chatid && memberid) {
+        db.none(`INSERT INTO ChatMembers(ChatID, MemberID) VALUES($1, $2)`, [chatid, memberid])
+        .then(() => {
+            res.send({
+                success: true
+            })
+        })
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing chatid or memberid"
+        })
+    }
+})
 
-/*
-    This will serve as the "base" get function, will return all >>!verified!<< contacts associated with this user's
-    memberID.
-*/
-router.get("/", (req, res) => {
-    
-    db.manyOrNone('SELECT * FROM ChatMembers') //refactor to make just verified contacts?
-    //If successful, run function passed into .then()
+/**
+ * This can be used to retrieve the chatids of chats between memberA(currentUser) and memberB(some
+ * contact they have queried).  With the ids you can use the messages/getMessages to retrieve the
+ * messages associated with those chats.
+ */
+router.post("/getChatsByContact", (req, res) => {
+    let userA = req.body['ida'];
+    let userB = req.body['idb'];
+    let chatNumber = req.body['chatnumber'];
+    if (userA && userB && chatNumber) {
+        query = `SELECT C.ChatID FROM
+        (SELECT CM.ChatID FROM ChatMembers AS CM 
+            INNER JOIN ChatMembers AS CM1
+            ON CM.ChatID = CM1.ChatID AND CM.MemberID = $1 AND CM1.MemberID = $2) AS C
+        INNER JOIN
+        (SELECT M.ChatID, M.Message, M.TimeStamp FROM Messages AS M
+        INNER JOIN
+        (SELECT M1.ChatID, MAX(M1.TimeStamp) AS TS
+        FROM Messages AS M1 GROUP BY M1.ChatID) AS M2
+        ON M.ChatID = M2.ChatID AND M.TimeStamp = M2.TS) AS M3
+        ON C.ChatID = M3.ChatID
+        ORDER BY M3.TimeStamp DESC
+        LIMIT $3`
+
+        db.manyOrNone(query, [userA, userB, chatNumber])
+        .then((data) => {
+            res.send({
+                success: true,
+                data: data
+            })
+        })
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+    } else {
+        res.send({ 
+            success: false,
+            error: "Missing ida or idb or chatnumber"
+        })
+    }
+})
+
+/**
+ * This should list out all recent messages with any opened chats.
+ */
+router.post("/getRecentChat", (req, res) => {
+    let userMemberID = req.body['memberid'];
+    let query = `SELECT Messages.message, Messages.chatid,messages.timestamp
+    from 
+    (SELECT Distinct messages.chatid, MAX(messages.timestamp) AS signin
+    FROM messages
+    GROUP BY messages.chatid
+    Order by signin desc) as newChat inner join messages 
+    on newChat.chatid=messages.chatid and messages.timestamp = signin
+    inner join 
+    (SELECT chatmembers.chatid
+    from chatmembers
+    where chatmembers.memberid = $1) as open on
+    messages.chatid = open.chatid
+    order by signin desc`
+    db.manyOrNone(query,userMemberID)
     .then((data) => {
         res.send({
             success: true,
-            names: data
+            contacts: data
+        
         });
     }).catch((error) => {
         console.log(error);
@@ -102,6 +152,56 @@ router.get("/", (req, res) => {
         })
     });
 });
+
+
+
+
+
+
+
+// /**
+//  * Send in a memberid and the number of chats you want and this will return that number of chats, ordered
+//  * by most recent posts.  With this list of ids you can then use messages/getmessages to retrieve 
+//  * the messages posted on any particular chat. 
+//  */
+// router.post("/getRecentChats", (req, res) => {
+//     let memberid = req.body['memberid'];
+//     let chatnumber = req.body['chatnumber'];
+//     if (memberid && chatnumber) {
+//         query = `SELECT C.ChatID FROM
+//         (SELECT ChatID FROM ChatMembers WHERE ChatMembers.MemberID = $1) AS C
+//         INNER JOIN
+//         (SELECT M.ChatID, M.Message, M.TimeStamp FROM Messages AS M
+//         INNER JOIN
+//         (SELECT M1.ChatID, MAX(M1.TimeStamp) AS TS
+//         FROM Messages AS M1 GROUP BY M1.ChatID) AS M2
+//         ON M.ChatID = M2.ChatID AND M.TimeStamp = M2.TS) AS M3
+//         ON C.ChatID = M3.ChatID
+//         ORDER BY M3.TimeStamp DESC
+//         LIMIT $2`
+
+//         db.manyOrNone(query, [memberid, chatnumber])
+//         .then((data) => {
+//             res.send({
+//                 success: true,
+//                 chatids: data
+//             })
+//         })
+//         .catch((err) => {
+//             res.send({
+//                 success: false,
+//                 error: err
+//             })
+//         });
+//     } else {
+//         res.send({
+//             success: false,
+//             error: "Missing memberid or chatnumber"
+//         })
+//     }
+// });
+
+
 module.exports = router;
 
 
