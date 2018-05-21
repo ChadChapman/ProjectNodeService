@@ -27,11 +27,13 @@ router.post("/newChat", (req, res) => {
     if (chatname) {
         db.one(`INSERT INTO Chats(Name) VALUES($1) RETURNING ChatID`, [chatname])
         .then((row) => {
-            let chatid = row['chatid'];
+            let newchatid = row['chatid'];
+            let newchatname = row['name'];
             
             res.send({
                 success: true,
-                message: chatid 
+                chatid: newchatid,
+                chatname: newchatname 
             })
         })
         .catch((err) => {
