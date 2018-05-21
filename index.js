@@ -54,7 +54,8 @@ app.use('/chat', chat);
 var getinfo = require('./routes/getinfo.js');
 app.use('/getinfo', getinfo);
 
-
+var search = require('./routes/search.js');
+app.use('/search', search);
 
 /*
  * Return HTML for the / end point. 
