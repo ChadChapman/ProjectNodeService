@@ -50,62 +50,80 @@ router.post("/newChat", (req, res) => {
 
 /**
  * Used to create all chatMembers for a newly created chat.  
- * Send in a chatid and a JSON Array of members who are included in the new chat
+ * Send in a chatid and the chatname, which consists of members who are included in the new chat
  * A new ChatMember will be inserted for each one.
  * Similar to /addChat but tries to eliminate an ep call for every member added
  */
 router.post("/addNewChatMembers", (req, res) => {
-    //take in a string, tokenize it to an array:
+    
+    chatid = req.body['chatid'];
+    console.log("PARSED OUT CHATID WAS: " + chatid);
+    let chatnameStringToSplit= req.body['chatname'];
+    noErrorsOccured = true;
 
-    let chatid = req.body['chatid'];
-    //not sure if javascript will modify the above one or not, better make a second
-    let idStringToSplit= req.body['chatidtosplit'];
-    var usernamesArr = idStringToSplit.split("+");
+    //make an array of usernames to add to the new chat
+    var usernamesArr = chatnameStringToSplit.split("+");
     console.log("number of users in chat = " + usernamesArr.length)
-    var usernamesNotFoundArr = new Array(1);
-    var errorOccured = true;
+    var errorsRecordArr = new Array(1);
+    
+    //now go through each username, add that user to chatmembers
     for (var i = 0; i < usernamesArr.length; i++) {
-        //get the memberid out of it first
+        
+        //get the username out of it first
         var addMemberUsername = usernamesArr[i];
         console.log("add this username = " + addMemberUsername);
-    //     var addMemberID = functiongetMemberIDFromUsername(addMemberUsername);
-    //     console.log("add this memberID = " + addMemberID);
-    //     if (addMemberID > 0) {
-    //     errorOccured = (errorOccured && utils.addMemberID(chatid,addMemberID));
-    //     } else {
-    //         usernamesNotFoundArr.push(addMemberUsername);
-    //     }
+
+        //ok, now start the callbacks to get the memberid then insert the record
         async.waterfall([
-            getMemberIDFromUsername //,
-            //mySecondFunction,
-            //myLastFunction,
-        ], function (err, result) {
-            console.log(result);//retrieves all 3 memberids from usernames
-            console.log(error);
-        });
-        function getMemberIDFromUsername(callback) {
+            getMemberIDFromUsername,
+            insertChatMember,
+            //myLastFunction, just a placeholder for now to remind me how ot do this, hahahaha
+        ], function (err, result) {//this function is the final callback, should hold results for the outer function
+            console.log("this was the final result : " + result);
+            noErrorsOccured = (noErrorsOccured && !(err === null))
+            if(err) {//tracking errors in aggregate so we can examine them later
+                errorsRecordArr.push(err.toString());
+                console.log(err);
+            }  else {
+
+            }       
+        }); //end "return" callback which will hold the "final" values we want returned from the functions
+        function getMemberIDFromUsername(callback) {//the first callback, is not passed anything
             query = `SELECT memberid
                     FROM members
                     WHERE username = $1`
             db.one(query, [addMemberUsername])
             .then((data) => {
-              
-              callback(null, data.memberid);  
+              callback(null, data.memberid);  //this should pass memberid to the next function
             })   
             .catch((err) => {
-              return -99;
-              console.log(err.toString());
               console.log("error occured getting memberid from the username");
-              
               });
+          }
+          function insertChatMember(memberID, callback) { //second callback function, waits on memberid from the first callback
+            console.log("inside insertChatMember, chatid = , arg1 = |" + chatid + ", " + memberID);
+            query = `INSERT INTO chatmembers
+                    (ChatID, MemberID)
+                    VALUES ($1, $2)`
+            db.none(query, [chatid, memberID])
+            .then(() => {
+              message = "SUCCESS! : record inserted++";
+              console.log("record inserted++ CHATID, MEMBERID | | " + chatid + " " + memberID);
+              callback(null, message);
+            })   
+            .catch((err) => {
+                message = "error occured on insert"
+                console.log(message);
+              callback(null, message);
+              });           
           }
      }
     res.send({
-                success: errorOccured,
-                error: "whelp something borked on the insert new members part",
-                notfound: usernamesNotFoundArr.toString()
+                success: noErrorsOccured,
+                errorcount: errorsRecordArr.length, 
+                errorsArray: errorsRecordArr.toString()
             })
-        })
+        }) //not sure if the close parens here is needed?
         
 /**
  * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 
