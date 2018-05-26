@@ -49,6 +49,9 @@ app.use('/demosql', demosql);
 var contacts = require('./routes/contacts.js');
 app.use('/contacts', contacts);
 
+var locations = require('./routes/locations.js');
+app.use('/locations', locations);
+
 //chat need to be refactored to handle creating a new chat
 // var chat = require('./routes/chat.js');
 // app.use('/chat', chat);
