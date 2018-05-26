@@ -79,4 +79,33 @@ router.post('/addLoc', (req, res) => {
     }
 });
 
+router.post('/deleteLoc', (req, res) => {
+    let memberid = req.body['memberid'];
+    let long = req.body['long'];
+    let lat = req.body['lat'];
+    let city = req.body['city'];
+
+    if(memberid&&long&&lat&&city) {
+
+        db.none('Delete from locations WHERE MemberID=$1 and Long = $4 and Lat = $3 and Nickname = $2', [memberid,city,lat,long])
+        //If successful, run function passed into .then()
+        .then(row => {
+            res.send({
+                success: true,
+            });
+        })
+        //More than one row shouldn't be found, since table has constraint on it
+        .catch((err) => {
+            //If anything happened, it wasn't successful
+            res.send({
+                success: false,
+            });
+        });
+    } else {
+        res.send({
+            success: false,
+            message: 'missing credentials'
+        });
+    }
+});
 module.exports = router;
