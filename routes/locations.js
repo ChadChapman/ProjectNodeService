@@ -22,7 +22,7 @@ router.get('/savedLoc', (req, res) => {
     let city = req.query['city'];
 
     if(memberid&&long&&lat&&city) {
-        db.manyOrNone('SELECT * FROM Locations WHERE MemberID=$1 and Long = $2 and Lat = $3 and Nickname = $4', [memberid,long,lat,city])
+        db.one('SELECT * FROM Locations WHERE MemberID=$1 and Long = $2 and Lat = $3 and Nickname = $4', [memberid,long,lat,city])
         //If successful, run function passed into .then()
         .then(row => {
             res.send({
