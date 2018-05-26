@@ -8,6 +8,8 @@ const bodyParser = require("body-parser");
 
 app.use(bodyParser.json());
 
+const crypto = require("crypto");
+
 let db = require("../utilities/utils").db;
 let getHash = require("../utilities/utils").getHash;
 let sendEmail = require('../utilities/utils').sendEmail;
@@ -103,6 +105,43 @@ router.post("/verify", (req, res) => {
                 error: err
             })
         });
+    }
+});
+
+router.post("/changePassword", (req, res) => {
+    let username = req.body['username'];
+    let password = req.body['password'];
+
+    if (username && password) {
+
+        var verificationCode = Math.floor(Math.random() * 9999);
+        let salt = crypto.randomBytes(32).toString("hex");
+        let salted_hash = getHash(password, salt);
+        let params = [username, salted_hash, salt, verificationCode];
+        var query = `UPDATE Members SET Password = $2,
+                                        SALT = $3,
+                                        Verification = $4
+                        WHERE Username = $1 RETURNING Email`
+        db.one(query, params)
+        .then((row) => {
+            res.send({
+                success: true
+            })
+            console.log(verificationCode);
+            let email = row['email'];
+            console.log(email);
+            sendEmail(sender, email, verifyMessage, "Your verifcation code is " + verificationCode);
+        }).catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing username or password"
+        })
     }
 });
 

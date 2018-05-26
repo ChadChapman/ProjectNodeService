@@ -62,6 +62,9 @@ app.use('/messages', messages);
 var getinfo = require('./routes/getinfo.js');
 app.use('/getinfo', getinfo);
 
+var search = require('./routes/search.js');
+app.use('/search', search);
+
 var chat = require('./routes/chat.js');
 app.use('/chat', chat);
 
@@ -158,6 +161,7 @@ app.use('/chat', chat);
 //         })
 //     });
 // });
+
 
 /*
  * Return HTML for the / end point. 
