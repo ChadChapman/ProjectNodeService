@@ -1,3 +1,7 @@
+/**
+*make sure to come back and add in any columns that were manually added through the terminal
+*/
+
 DROP TABLE IF EXISTS Members;
 CREATE TABLE Members (MemberID SERIAL PRIMARY KEY,
                       FirstName VARCHAR(255) NOT NULL,
