@@ -55,6 +55,35 @@ router.post("/newChat", (req, res) => {
 });
 
 /**
+ * Leave a chat
+ */
+router.post("/leaveChat", (req, res) => {
+    
+    chatid = req.body['chatid'];
+    memberid = req.body['memberid'];
+    if (chatid&&memberid) {
+        db.none(`Delete from chatmembers where memberid = $1 and chatid = $2`, [memberid,chatid])
+        .then(row => {
+            res.send({
+                success: true,
+            });
+        })
+        //More than one row shouldn't be found, since table has constraint on it
+        .catch((err) => {
+            //If anything happened, it wasn't successful
+            res.send({
+                success: false,
+            });
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing chatid or memberid"
+        })
+    }
+});
+
+/**
  * Used to create all chatMembers for a newly created chat.  
  * Send in a chatid and the chatname, which consists of members who are included in the new chat
  * A new ChatMember will be inserted for each one.
@@ -237,13 +266,14 @@ router.post("/getChatsByContact", (req, res) => {
  */
 router.post("/getRecentChat", (req, res) => {
     let userMemberID = req.body['memberid'];
-    let query = `SELECT Messages.message, Messages.chatid,messages.timestamp
+    let query = `SELECT Messages.message, Messages.chatid,messages.timestamp,chats.name
     from 
     (SELECT Distinct messages.chatid, MAX(messages.timestamp) AS signin
     FROM messages
     GROUP BY messages.chatid
     Order by signin desc) as newChat inner join messages 
     on newChat.chatid=messages.chatid and messages.timestamp = signin
+    inner join chats on messages.chatid = chats.chatid
     inner join 
     (SELECT chatmembers.chatid
     from chatmembers

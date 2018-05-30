@@ -49,6 +49,9 @@ app.use('/demosql', demosql);
 var contacts = require('./routes/contacts.js');
 app.use('/contacts', contacts);
 
+var locations = require('./routes/locations.js');
+app.use('/locations', locations);
+
 //chat need to be refactored to handle creating a new chat
 // var chat = require('./routes/chat.js');
 // app.use('/chat', chat);
@@ -58,6 +61,9 @@ app.use('/messages', messages);
 
 var getinfo = require('./routes/getinfo.js');
 app.use('/getinfo', getinfo);
+
+var search = require('./routes/search.js');
+app.use('/search', search);
 
 var chat = require('./routes/chat.js');
 app.use('/chat', chat);
@@ -158,6 +164,7 @@ app.use('/updatetoken', iidrefresh);
 //         })
 //     });
 // });
+
 
 /*
  * Return HTML for the / end point. 
