@@ -15,6 +15,7 @@ let db = require('../utilities/utils').db;
 var router = express.Router();
 
 
+
 /*
 we will want to:
     return all verified contacts - done
@@ -28,7 +29,35 @@ we will want to:
     ??? - what else
 */
 
+router.post("/getAllContacts", (req, res) => {
+    let userMemberID = req.body['memberid'];
+    let query = `SELECT DISTINCT members.username, members.email, members.memberid, members.firstname, members.lastname
+    FROM contacts INNER JOIN members
+    ON (contacts.memberid_a = members.memberid and contacts.memberid_b = $1)
+    OR
+    (contacts.memberid_b = members.memberid and contacts.memberid_a = $1)`
+    if (memberid) {
+        db.manOrNone(qeury, [userMemberID])
+        .then((rows) => {
+            res.send({
+                success: true,
+                contacts: rows
+            })
+        })
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing memberid"
+        })
+    }
 
+});
 /*
     This is to show the friends list of the user
 */

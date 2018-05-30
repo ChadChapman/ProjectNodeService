@@ -55,6 +55,35 @@ router.post("/newChat", (req, res) => {
 });
 
 /**
+ * Leave a chat
+ */
+router.post("/leaveChat", (req, res) => {
+    
+    chatid = req.body['chatid'];
+    memberid = req.body['memberid'];
+    if (chatid&&memberid) {
+        db.none(`Delete from chatmembers where memberid = $1 and chatid = $2`, [memberid,chatid])
+        .then(row => {
+            res.send({
+                success: true,
+            });
+        })
+        //More than one row shouldn't be found, since table has constraint on it
+        .catch((err) => {
+            //If anything happened, it wasn't successful
+            res.send({
+                success: false,
+            });
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing chatid or memberid"
+        })
+    }
+});
+
+/**
  * Used to create all chatMembers for a newly created chat.  
  * Send in a chatid and the chatname, which consists of members who are included in the new chat
  * A new ChatMember will be inserted for each one.
@@ -237,13 +266,14 @@ router.post("/getChatsByContact", (req, res) => {
  */
 router.post("/getRecentChat", (req, res) => {
     let userMemberID = req.body['memberid'];
-    let query = `SELECT Messages.message, Messages.chatid,messages.timestamp
+    let query = `SELECT Messages.message, Messages.chatid,messages.timestamp,chats.name
     from 
     (SELECT Distinct messages.chatid, MAX(messages.timestamp) AS signin
     FROM messages
     GROUP BY messages.chatid
     Order by signin desc) as newChat inner join messages 
     on newChat.chatid=messages.chatid and messages.timestamp = signin
+    inner join chats on messages.chatid = chats.chatid
     inner join 
     (SELECT chatmembers.chatid
     from chatmembers
@@ -265,55 +295,6 @@ router.post("/getRecentChat", (req, res) => {
         })
     });
 });
-
-
-
-
-
-
-
-// /**
-//  * Send in a memberid and the number of chats you want and this will return that number of chats, ordered
-//  * by most recent posts.  With this list of ids you can then use messages/getmessages to retrieve 
-//  * the messages posted on any particular chat. 
-//  */
-// router.post("/getRecentChats", (req, res) => {
-//     let memberid = req.body['memberid'];
-//     let chatnumber = req.body['chatnumber'];
-//     if (memberid && chatnumber) {
-//         query = `SELECT C.ChatID FROM
-//         (SELECT ChatID FROM ChatMembers WHERE ChatMembers.MemberID = $1) AS C
-//         INNER JOIN
-//         (SELECT M.ChatID, M.Message, M.TimeStamp FROM Messages AS M
-//         INNER JOIN
-//         (SELECT M1.ChatID, MAX(M1.TimeStamp) AS TS
-//         FROM Messages AS M1 GROUP BY M1.ChatID) AS M2
-//         ON M.ChatID = M2.ChatID AND M.TimeStamp = M2.TS) AS M3
-//         ON C.ChatID = M3.ChatID
-//         ORDER BY M3.TimeStamp DESC
-//         LIMIT $2`
-
-//         db.manyOrNone(query, [memberid, chatnumber])
-//         .then((data) => {
-//             res.send({
-//                 success: true,
-//                 chatids: data
-//             })
-//         })
-//         .catch((err) => {
-//             res.send({
-//                 success: false,
-//                 error: err
-//             })
-//         });
-//     } else {
-//         res.send({
-//             success: false,
-//             error: "Missing memberid or chatnumber"
-//         })
-//     }
-// });
-
 
 module.exports = router;
 
