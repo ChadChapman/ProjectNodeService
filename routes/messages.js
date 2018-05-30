@@ -5,13 +5,22 @@ const app = express();
 
 //Create a connection to Heroku Database
 let db = require('../utilities/utils').db;
-
+let fbPushNotifications = require('../utilities/push_notifications').push_notification;
 var router = express.Router();
 
+
+
+/*
+    ok, so whenever we send a message, we are going to want to fire off a notification / message
+    from Firebase.  I'll add it in here then we can refactor it into separate functions / callbacks later.
+
+*/
 router.post('/sendMessages', (req, res) => {
+    //previously here
     let username = req.body['username'];
     let message = req.body['message'];
     let chatId = req.body['chatid'];
+    //new
 
     if(!username || !message || !chatId){
         res.send({
