@@ -206,7 +206,7 @@ router.post("/getChatsByContact", (req, res) => {
  */
 router.post("/getRecentChat", (req, res) => {
     let userMemberID = req.body['memberid'];
-    let query = `SELECT Messages.message, Messages.chatid,messages.timestamp,,chats.name
+    let query = `SELECT Messages.message, Messages.chatid,messages.timestamp,chats.name
     from 
     (SELECT Distinct messages.chatid, MAX(messages.timestamp) AS signin
     FROM messages
