@@ -1,5 +1,7 @@
 /**
 *make sure to come back and add in any columns that were manually added through the terminal
+^^ didn't think we were going to have to do that, but we do! yay!
+adding in firebase_iidtoken for the members table.  I think that may be all though.
 */
 
 DROP TABLE IF EXISTS Members;

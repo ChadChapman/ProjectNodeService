@@ -20,22 +20,43 @@ router.post('/sendMessages', (req, res) => {
     let username = req.body['username'];
     let message = req.body['message'];
     let chatId = req.body['chatid'];
-    //new
+    //new fields here:
+    let chatName = req.body['chatname'];
+
+//>>> ended here!!!
+/*
+    need to add in another call here to actually create a push notification
+*/    
 
     if(!username || !message || !chatId){
         res.send({
             success: false,
             error: "Username, message, or chatId not supplied!"
-
         })
         return;
     }
     let insert = "INSERT INTO Messages(ChatId, Message, MemberId) SELECT $1, $2, MemberId FROM Members WHERE Username = $3"
-
-    db.none(insert, [chatId, message, username])
-    .then(() => {
-        res.send({
-            success: true
+    db.none(insert, [chatId, message, username]) 
+    .then(() => { //now message has been saved, need to get out the push notification
+        let query = `SELECT * FROM members 
+                    LEFT JOIN chatmembers
+                    ON members.memberid = chatmembers.memberid
+                    WHERE chatmembers.chatid = $1
+                    AND members.username != $2`
+        db.manyOrNone(query, [chadId, username])
+        .then((rows) => {
+            push_notification(rows, message, username, chatname, chatId);
+            res.send({
+                success:true,
+                message:"push notification pushed"
+            });
+        })
+        .catch(err => {
+            res.send({
+                success: false,
+                message: "fail to push notification",
+                error : err
+            });
         });
     }).catch((err) => {
         res.send({
