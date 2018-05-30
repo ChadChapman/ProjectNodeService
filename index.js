@@ -62,6 +62,9 @@ app.use('/getinfo', getinfo);
 var chat = require('./routes/chat.js');
 app.use('/chat', chat);
 
+var iidrefresh = require('./routes/update_iidtoken.js');
+app.use('/updatetoken', iidrefresh);
+
 // function sendEmail(from, to, subject, message) {
 //     let form = new FormData();
 //     form.append("from", from);
