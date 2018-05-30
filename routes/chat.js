@@ -12,6 +12,8 @@ const async = require('async');
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
 let utils = require('../utilities/utils');
+let fbSinglePushNotification = require('../utilities/push_notifications').handleNotificationEachToken;
+let fbMultiplePushNotifications = require('../utilities/push_notifications').push_notification;
 
 var router = express.Router();
 
@@ -20,6 +22,8 @@ var router = express.Router();
  * Create a brand new chat.  The new chat will have no members associated with it at first.
  * This post returns the chatid and the front-end code must catch that id in order to add
  * ChatMembers to the chat.
+ * 
+ * will this need a firebase token also? or a topic?
  */
 router.post("/newChat", (req, res) => {
     
@@ -130,6 +134,11 @@ router.post("/addNewChatMembers", (req, res) => {
 /**
  * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 
  * thier contacts) and ChatMember will be inserted.
+ * 
+ * somewhere we need to send a push notification to either invite the member or let them know they have bene added 
+ * to a chat.  I'm going to try it with just one user here first, then will try with multiple in the ep above
+ * after that works.
+ * question: how will we handle a person who has multiple invitations to the same chat?
  */
 router.post("/addChat", (req, res) => {
     let chatid = req.body['chatid'];

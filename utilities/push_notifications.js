@@ -5,7 +5,7 @@ var request = require('request');
 function push_notification(paramrows, parammsg, paramsender, paramtag, paramchatid) {
     let notificationMsg = parammsg;
     let msgSender = paramsender;
-    let notificationTag = paramtag;
+    let notificationTag = paramtag;s
     let msgChatid = paramchatid;
     for (var row in paramrows) {
         if (rows[row].firebase_token != null) {
@@ -47,7 +47,6 @@ function handleNotificationEachToken(paramtoken, parammsg, paramsender, paramtag
         body: JSON.stringify(fullBody),
         headers: {
         'Authorization' : 'key=AAAAgfCdyhA:APA91bF5obqe-ouwa0UYDIpSWKUtBgwvxnShJ422hWfoeKRjzjak6Ki7FP9FWrM73Pkcc4KNzdH4KrDKu43rWeqqHsBfKJoCxIGmPBTwL0-9zRyBC17FjqWJbs5W3numcsm-XxLF4FuM',
-        // 'Authorization' : process.env.FIREBASE_SERVER_KEY,
         'Content-Type' : 'application/json',
         }
     };
