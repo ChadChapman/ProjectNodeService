@@ -213,12 +213,13 @@ router.post("/getRecentChat", (req, res) => {
     GROUP BY messages.chatid
     Order by signin desc) as newChat inner join messages 
     on newChat.chatid=messages.chatid and messages.timestamp = signin
+    inner join chats on messages.chatid = chats.chatid
     inner join 
     (SELECT chatmembers.chatid
     from chatmembers
     where chatmembers.memberid = $1) as open on
     messages.chatid = open.chatid
-    order by signin desc`
+    order by signin desc;`
     db.manyOrNone(query,userMemberID)
     .then((data) => {
         res.send({
