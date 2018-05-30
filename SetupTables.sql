@@ -3,6 +3,13 @@
 ^^ didn't think we were going to have to do that, but we do! yay!
 adding in firebase_iidtoken for the members table.  I think that may be all though.
 */
+/*
+    ALTER TABLE table_name
+ADD COLUMN new_column_name_1 data_type constraint,
+ADD COLUMN new_column_name_2 data_type constraint,
+...
+ADD COLUMN new_column_name_n data_type constraint;
+*/
 
 DROP TABLE IF EXISTS Members;
 CREATE TABLE Members (MemberID SERIAL PRIMARY KEY,
@@ -12,6 +19,8 @@ CREATE TABLE Members (MemberID SERIAL PRIMARY KEY,
                       Email VARCHAR(255) NOT NULL UNIQUE,
                       Password VARCHAR(255) NOT NULL,
                       SALT VARCHAR(255),
+                      /*adding Firebase_iidtoken VARCHAR(1024), */
+                      Firebase_iidtoken VARCHAR(1024),
                       Verification INT DEFAULT 0
 );
 
