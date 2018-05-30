@@ -51,6 +51,35 @@ router.post("/newChat", (req, res) => {
 });
 
 /**
+ * Leave a chat
+ */
+router.post("/leaveChat", (req, res) => {
+    
+    chatid = req.body['chatid'];
+    memberid = req.body['memberid'];
+    if (chatid&&memberid) {
+        db.none(`Delete from chatmembers where memberid = $1 and chatid = $2`, [memberid,chatid])
+        .then(row => {
+            res.send({
+                success: true,
+            });
+        })
+        //More than one row shouldn't be found, since table has constraint on it
+        .catch((err) => {
+            //If anything happened, it wasn't successful
+            res.send({
+                success: false,
+            });
+        });
+    } else {
+        res.send({
+            success: false,
+            error: "Missing chatid or memberid"
+        })
+    }
+});
+
+/**
  * Used to create all chatMembers for a newly created chat.  
  * Send in a chatid and the chatname, which consists of members who are included in the new chat
  * A new ChatMember will be inserted for each one.
