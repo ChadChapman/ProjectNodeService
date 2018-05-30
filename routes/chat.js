@@ -296,55 +296,6 @@ router.post("/getRecentChat", (req, res) => {
     });
 });
 
-
-
-
-
-
-
-// /**
-//  * Send in a memberid and the number of chats you want and this will return that number of chats, ordered
-//  * by most recent posts.  With this list of ids you can then use messages/getmessages to retrieve 
-//  * the messages posted on any particular chat. 
-//  */
-// router.post("/getRecentChats", (req, res) => {
-//     let memberid = req.body['memberid'];
-//     let chatnumber = req.body['chatnumber'];
-//     if (memberid && chatnumber) {
-//         query = `SELECT C.ChatID FROM
-//         (SELECT ChatID FROM ChatMembers WHERE ChatMembers.MemberID = $1) AS C
-//         INNER JOIN
-//         (SELECT M.ChatID, M.Message, M.TimeStamp FROM Messages AS M
-//         INNER JOIN
-//         (SELECT M1.ChatID, MAX(M1.TimeStamp) AS TS
-//         FROM Messages AS M1 GROUP BY M1.ChatID) AS M2
-//         ON M.ChatID = M2.ChatID AND M.TimeStamp = M2.TS) AS M3
-//         ON C.ChatID = M3.ChatID
-//         ORDER BY M3.TimeStamp DESC
-//         LIMIT $2`
-
-//         db.manyOrNone(query, [memberid, chatnumber])
-//         .then((data) => {
-//             res.send({
-//                 success: true,
-//                 chatids: data
-//             })
-//         })
-//         .catch((err) => {
-//             res.send({
-//                 success: false,
-//                 error: err
-//             })
-//         });
-//     } else {
-//         res.send({
-//             success: false,
-//             error: "Missing memberid or chatnumber"
-//         })
-//     }
-// });
-
-
 module.exports = router;
 
 
