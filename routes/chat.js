@@ -219,7 +219,7 @@ router.post("/getRecentChat", (req, res) => {
     from chatmembers
     where chatmembers.memberid = $1) as open on
     messages.chatid = open.chatid
-    order by signin desc;`
+    order by signin desc`
     db.manyOrNone(query,userMemberID)
     .then((data) => {
         res.send({
