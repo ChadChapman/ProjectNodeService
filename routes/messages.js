@@ -20,7 +20,11 @@ router.post('/sendMessages', (req, res) => {
     let username = req.body['username'];
     let message = req.body['message'];
     let chatId = req.body['chatid'];
-    //new
+    //new fields here:
+//>>> ended here!!!
+/*
+    need to add in another call here to actually create a push notification
+*/    
 
     if(!username || !message || !chatId){
         res.send({
