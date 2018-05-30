@@ -24,7 +24,7 @@ function handleNotificationEachToken(paramtoken, parammsg, paramsender, paramtag
         click_action : "OPEN_ACTIVITY",
         body : parammsg,
         title: paramsender,
-        icon : "ic_chat",
+        icon : "ic_chat", //need to double check this
         tag : paramtag,
     //    sound: "default"
     };
