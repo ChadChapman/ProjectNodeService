@@ -23,11 +23,6 @@ router.post('/sendMessages', (req, res) => {
     //new fields here:
     let chatName = req.body['chatname'];
 
-//>>> ended here!!!
-/*
-    need to add in another call here to actually create a push notification
-*/    
-
     if(!username || !message || !chatId){
         res.send({
             success: false,
@@ -46,7 +41,8 @@ router.post('/sendMessages', (req, res) => {
         db.manyOrNone(query, [chadId, username])
         .then((rows) => {
             push_notification(rows, message, username, chatname, chatId);
-            res.send({
+            console.log("push notification sent with msg => " + message);
+            res.send({ 
                 success:true,
                 message:"push notification pushed"
             });

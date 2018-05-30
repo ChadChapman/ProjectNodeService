@@ -12,6 +12,8 @@ const async = require('async');
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
 let utils = require('../utilities/utils');
+let fbSinglePushNotification = require('../utilities/push_notifications').handleNotificationEachToken;
+let fbMultiplePushNotifications = require('../utilities/push_notifications').push_notification;
 
 var router = express.Router();
 
@@ -20,6 +22,8 @@ var router = express.Router();
  * Create a brand new chat.  The new chat will have no members associated with it at first.
  * This post returns the chatid and the front-end code must catch that id in order to add
  * ChatMembers to the chat.
+ * 
+ * will this need a firebase token also? or a topic?
  */
 router.post("/newChat", (req, res) => {
     
@@ -130,28 +134,55 @@ router.post("/addNewChatMembers", (req, res) => {
 /**
  * Used to create chatMembers.  Send in a chatid and a memberid(could be current user or one of 
  * thier contacts) and ChatMember will be inserted.
+ * 
+ * somewhere we need to send a push notification to either invite the member or let them know they have bene added 
+ * to a chat.  I'm going to try it with just one user here first, then will try with multiple in the ep above
+ * after that works.
+ * question: how will we handle a person who has multiple invitations to the same chat? 
+ * conditions: this ep assumes the invitation checking
+ * has been handled elsewhere and invitation is valid, here we are just adding in a member to the chat.
  */
 router.post("/addChat", (req, res) => {
     let chatid = req.body['chatid'];
-    let memberid = req.body['memberid'];
+    //how are we getting the memberid of the person to add again?  that may come from a merge i guess?
+    let targetUsername = req.body['targetusername'];
+    let sourceUsername = req.body['sourceusername'];
+    let targetmemberid = req.body['targetmemberid'];
 
     if (chatid && memberid) {
-        db.none(`INSERT INTO ChatMembers(ChatID, MemberID) VALUES($1, $2)`, [chatid, memberid])
+        db.none(`INSERT INTO ChatMembers(ChatID, MemberID) VALUES($1, $2)`, [chatid, targetmemberid])
         .then(() => {
+            let fbQuery = `SELECT firebase_iidtoken
+                            FROM members
+                            WHERE memberid = $1`//may have to swithc this to username later
+            db.one(fbQuery, [memberid])
+            .then((user) => {
+                fbSinglePushNotification(user.firebase_iidtoken, "Invite to join a Rabbit Chat!", sourceUsername, "ChatInvite", chatid); //do we need to include chatid? what happens if its not included? its just null?
+            })
+            .catch(err => {
+                res.send({
+                    success : false,
+                    message : "firebase_iidtoken not found for that member",
+                    error : err
+                });
+                return; //couldn't find firebase token to notify user of being added to the chat, may want to proceed anyways?
+            })
             res.send({
-                success: true
+                success: true,
+                message: "member added to existing chat, push notification sent to them new chat member"
             })
         })
         .catch((err) => {
             res.send({
                 success: false,
+                message: "chat did NOT get new member added",
                 error: err
             })
         });
     } else {
         res.send({
             success: false,
-            error: "Missing chatid or memberid"
+            error: "Missing chatid or memberid" //going to need to modify this as we will need to pass in more params
         })
     }
 })
