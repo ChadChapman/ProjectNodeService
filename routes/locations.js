@@ -48,6 +48,30 @@ router.get('/savedLoc', (req, res) => {
     }
 });
 
+router.get('/getAllLoc', (req, res) => {
+    let memberid = req.query['memberid'];
+    if(memberid) {
+        db.manyOrNone('SELECT * FROM Locations WHERE MemberID=$1', [memberid])
+        //If successful, run function passed into .then()
+        .then(rows => {
+            res.send({
+                locations: rows
+            });
+        })
+        .catch((err) => {
+            //If anything happened, it wasn't successful
+            res.send({
+                success: false,
+                error: err
+            });
+        });
+    } else {
+        res.send({
+            success: false,
+            error: err
+        });
+    }
+});
 
 router.post('/addLoc', (req, res) => {
     let memberid = req.body['memberid'];
